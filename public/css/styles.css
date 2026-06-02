@@ -40,7 +40,7 @@ img{max-width:100%;display:block}
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:var(--bg-primary)}
 ::-webkit-scrollbar-thumb{background:var(--red-dark);border-radius:3px}
-::selection{background:var(--red);color:#fff}
+::selection{background:var(--gold);color:#000}
 
 /* ═══════════════ LOADING SCREEN ═══════════════ */
 .loading-screen{position:fixed;inset:0;z-index:9999;background:var(--bg-primary);display:flex;align-items:center;justify-content:center;transition:opacity .5s,visibility .5s}
@@ -70,7 +70,7 @@ img{max-width:100%;display:block}
 .form-group{margin-bottom:18px}
 .form-group label{display:block;font-size:.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
 .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);transition:var(--transition)}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(178,34,52,.15)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,.15)}
 .form-group input::placeholder,.form-group textarea::placeholder{color:var(--text-muted)}
 .form-group select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%239A9AB0' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center}
 .form-group select option{background:var(--bg-secondary);color:var(--text-primary)}
@@ -142,7 +142,7 @@ img{max-width:100%;display:block}
 .search-box{position:relative;max-width:400px}
 .search-box svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted)}
 .search-box input{width:100%;padding:12px 16px 12px 44px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);font-size:.95rem}
-.search-box input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(178,34,52,.15)}
+.search-box input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,.15)}
 .search-box input::placeholder{color:var(--text-muted)}
 .category-filters{display:flex;gap:8px;flex-wrap:wrap}
 .filter-btn{padding:8px 18px;border-radius:20px;font-size:.8rem;font-weight:600;background:var(--bg-glass);border:1px solid var(--border);color:var(--text-secondary);transition:var(--transition)}
@@ -239,7 +239,7 @@ img{max-width:100%;display:block}
 .message-time{font-size:.7rem;opacity:.7;margin-top:4px;display:block}
 .chat-input-area{display:flex;gap:8px;padding:16px 20px;border-top:1px solid var(--border)}
 .chat-input-area input{flex:1;padding:10px 16px;background:var(--bg-primary);border:1px solid var(--border);border-radius:20px;color:var(--text-primary)}
-.chat-input-area input:focus{border-color:var(--red)}
+.chat-input-area input:focus{border-color:var(--gold)}
 
 /* ═══════════════ EMPTY STATES ═══════════════ */
 .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted)}
