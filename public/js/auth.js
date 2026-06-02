@@ -84,9 +84,15 @@ const Auth = {
       const name = document.getElementById('register-name').value.trim();
       const email = document.getElementById('register-email').value.trim();
       const password = document.getElementById('register-password').value;
+      const confirmPassword = document.getElementById('register-confirm-password').value;
       registerError.classList.add('hidden');
-      if (!name || !email || !password) {
+      if (!name || !email || !password || !confirmPassword) {
         registerError.textContent = 'Please fill in all fields';
+        registerError.classList.remove('hidden');
+        return;
+      }
+      if (password !== confirmPassword) {
+        registerError.textContent = 'Passwords do not match';
         registerError.classList.remove('hidden');
         return;
       }
