@@ -1,21 +1,10 @@
 // Chat module
 const Chat = {
-  socket: null,
   currentChat: null,
+  pollInterval: null,
+  lastMessageTime: null,
 
   init() {
-    this.socket = io();
-    this.socket.on('new_message', (msg) => {
-      if (this.currentChat && msg.item_id == this.currentChat.itemId && msg.sender_id == this.currentChat.otherUserId) {
-        this.appendMessage(msg, false);
-        this.markRead();
-      }
-      this.updateUnreadBadge();
-      this.loadConversations();
-    });
-    this.socket.on('message_sent', (msg) => {
-      this.appendMessage(msg, true);
-    });
     this.updateUnreadBadge();
 
     // Chat input
@@ -24,6 +13,7 @@ const Chat = {
     document.getElementById('chat-back-btn').addEventListener('click', () => {
       document.getElementById('chat-active').classList.add('hidden');
       document.querySelector('.chat-placeholder').classList.remove('hidden');
+      this.closeChat();
     });
   },
 
@@ -66,30 +56,59 @@ const Chat = {
   },
 
   async openChat(itemId, otherUserId, otherUserName, itemTitle) {
+    this.closeChat(); // clear existing intervals
     this.currentChat = { itemId, otherUserId, otherUserName, itemTitle };
     document.getElementById('chat-partner-name').textContent = otherUserName;
     document.getElementById('chat-item-title').textContent = 'About: ' + itemTitle;
     document.querySelector('.chat-placeholder').classList.add('hidden');
     document.getElementById('chat-active').classList.remove('hidden');
     document.getElementById('chat-messages').innerHTML = '';
+    this.lastMessageTime = null;
 
     // Highlight active conversation
     document.querySelectorAll('.conversation-item').forEach(el => {
       el.classList.toggle('active', parseInt(el.dataset.userId) === otherUserId && parseInt(el.dataset.itemId) === itemId);
     });
 
+    await this.fetchMessages();
+    
+    // Start polling every 3 seconds for new messages
+    this.pollInterval = setInterval(() => {
+      this.fetchMessages(true);
+    }, 3000);
+  },
+
+  closeChat() {
+    this.currentChat = null;
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
+  },
+
+  async fetchMessages(isPolling = false) {
+    if (!this.currentChat) return;
     try {
-      const data = await apiRequest(`/api/chat/messages/${itemId}/${otherUserId}`);
+      const data = await apiRequest(`/api/chat/messages/${this.currentChat.itemId}/${this.currentChat.otherUserId}`);
       const container = document.getElementById('chat-messages');
-      if (data.messages) {
-        data.messages.forEach(msg => {
-          const isSent = msg.sender_id === Auth.currentUser.id;
-          this.appendMessage(msg, isSent);
-        });
+      
+      if (data.messages && data.messages.length > 0) {
+        // If polling, only append new messages. Simple approach: replace all if length differs or just redraw
+        const newLatestTime = data.messages[data.messages.length - 1].created_at;
+        
+        if (!this.lastMessageTime || this.lastMessageTime !== newLatestTime) {
+          container.innerHTML = '';
+          data.messages.forEach(msg => {
+            const isSent = msg.sender_id === Auth.currentUser.id;
+            this.appendMessage(msg, isSent);
+          });
+          this.lastMessageTime = newLatestTime;
+          this.markRead();
+        }
       }
-      this.updateUnreadBadge();
+      if (!isPolling) this.updateUnreadBadge();
     } catch (err) {
-      showToast('Failed to load messages', 'error');
+      if (!isPolling) showToast('Failed to load messages', 'error');
     }
   },
 
@@ -102,17 +121,31 @@ const Chat = {
     container.scrollTop = container.scrollHeight;
   },
 
-  sendMessage() {
+  async sendMessage() {
     const input = document.getElementById('chat-input');
     const content = input.value.trim();
     if (!content || !this.currentChat) return;
 
-    this.socket.emit('send_message', {
-      receiver_id: this.currentChat.otherUserId,
-      item_id: this.currentChat.itemId,
-      content
-    });
     input.value = '';
+    
+    try {
+      const data = await apiRequest('/api/chat/send', {
+        method: 'POST',
+        body: JSON.stringify({
+          receiver_id: this.currentChat.otherUserId,
+          item_id: this.currentChat.itemId,
+          content
+        })
+      });
+
+      if (data.success && data.message) {
+        // Force refresh to show sent message
+        await this.fetchMessages();
+        this.loadConversations();
+      }
+    } catch (err) {
+      showToast('Failed to send message', 'error');
+    }
   },
 
   async markRead() {
