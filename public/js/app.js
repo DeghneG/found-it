@@ -21,6 +21,34 @@ const App = {
     Items.setupFilters();
     Calendar.init();
     this.setupPasswordToggles();
+    this.setupTheme();
+  },
+
+  setupTheme() {
+    const toggle = document.getElementById('theme-toggle');
+    const sunIcon = toggle.querySelector('.sun-icon');
+    const moonIcon = toggle.querySelector('.moon-icon');
+    
+    // Check saved theme
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light-mode');
+      sunIcon.classList.add('hidden');
+      moonIcon.classList.remove('hidden');
+    }
+    
+    toggle.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      
+      if (isLight) {
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      } else {
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+      }
+    });
   },
 
   setupPasswordToggles() {
@@ -78,10 +106,42 @@ const App = {
     document.getElementById('nav-brand').addEventListener('click', () => this.switchView('dashboard'));
 
     // Logout
-    document.getElementById('logout-btn').addEventListener('click', async () => {
-      await Auth.logout();
-      document.getElementById('app').classList.add('hidden');
-      document.getElementById('auth-screen').classList.remove('hidden');
+    const logoutBtn = document.getElementById('logout-btn');
+    let logoutTimeout;
+    
+    logoutBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      
+      if (!logoutBtn.classList.contains('confirm-logout')) {
+        // First click: Ask for confirmation
+        logoutBtn.classList.add('confirm-logout');
+        logoutBtn.querySelector('.logout-text').classList.remove('hidden');
+        
+        // Reset after 3 seconds
+        clearTimeout(logoutTimeout);
+        logoutTimeout = setTimeout(() => {
+          logoutBtn.classList.remove('confirm-logout');
+          logoutBtn.querySelector('.logout-text').classList.add('hidden');
+        }, 3000);
+      } else {
+        // Second click: Actually logout
+        clearTimeout(logoutTimeout);
+        logoutBtn.classList.remove('confirm-logout');
+        logoutBtn.querySelector('.logout-text').classList.add('hidden');
+        
+        await Auth.logout();
+        document.getElementById('app').classList.add('hidden');
+        document.getElementById('auth-screen').classList.remove('hidden');
+      }
+    });
+    
+    // Clicking anywhere else cancels the logout confirmation
+    document.addEventListener('click', (e) => {
+      if (logoutBtn.classList.contains('confirm-logout') && !logoutBtn.contains(e.target)) {
+        clearTimeout(logoutTimeout);
+        logoutBtn.classList.remove('confirm-logout');
+        logoutBtn.querySelector('.logout-text').classList.add('hidden');
+      }
     });
 
     // Profile button (clickable user area)

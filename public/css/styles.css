@@ -28,6 +28,43 @@
   --font: 'Inter', system-ui, sans-serif;
 }
 
+body.light-mode {
+  --bg-primary: #F3F4F6;
+  --bg-secondary: #FFFFFF;
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-glass: rgba(0,0,0,0.04);
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-muted: #9CA3AF;
+  --border: rgba(0,0,0,0.1);
+  --shadow: 0 4px 15px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 1000;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  color: var(--text-primary);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+.theme-toggle:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
 /* ═══════════════ RESET ═══════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;scroll-behavior:smooth}
@@ -123,6 +160,13 @@ img{max-width:100%;display:block}
 .user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff;flex-shrink:0}
 .user-info span{font-size:.85rem;font-weight:500;color:var(--text-secondary)}
 .admin-badge{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--bg-primary);font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase}
+
+.logout-btn-container { transition: all 0.3s ease; white-space: nowrap; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.logout-btn-container.confirm-logout { background: linear-gradient(135deg, var(--danger), #DC2626); color: #fff; width: 100%; border-color: var(--danger); justify-content: center; gap: 6px; padding-left: 12px; padding-right: 12px; }
+.logout-btn-container.confirm-logout:hover { box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); transform: translateY(-1px); }
+.logout-btn-container.confirm-logout .logout-text { display: inline-block; font-weight: 600; font-size: 0.85rem; }
+.logout-btn-container.confirm-logout svg { width: 16px; height: 16px; }
+
 .mobile-nav-toggle{display:none;position:fixed;top:16px;left:16px;z-index:200;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px;color:var(--text-primary)}
 
 /* ═══════════════ MAIN CONTENT ═══════════════ */
