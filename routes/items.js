@@ -16,6 +16,11 @@ router.get('/', async (req, res) => {
         users:user_id (name, email)
       `);
 
+    // Filter out items older than 60 days
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+    query = query.gte('created_at', sixtyDaysAgo.toISOString());
+
     if (status) {
       query = query.eq('status', status);
     }
@@ -56,6 +61,9 @@ router.get('/', async (req, res) => {
 // Get user's own items
 router.get('/user/my-items', requireAuth, async (req, res) => {
   try {
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
     const { data: items, error } = await supabase
       .from('items')
       .select(`
@@ -63,6 +71,7 @@ router.get('/user/my-items', requireAuth, async (req, res) => {
         users:user_id (name, email)
       `)
       .eq('user_id', req.session.userId)
+      .gte('created_at', sixtyDaysAgo.toISOString())
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -248,6 +257,40 @@ router.put('/:id/found', requireAuth, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('Mark found error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Bump item
+router.put('/:id/bump', requireAuth, async (req, res) => {
+  try {
+    const { data: check, error: checkError } = await supabase
+      .from('items')
+      .select('user_id, created_at')
+      .eq('id', req.params.id)
+      .single();
+
+    if (checkError || !check) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+
+    if (check.user_id !== req.session.userId && !req.session.isAdmin) {
+      return res.status(403).json({ error: 'Only the poster can bump their item' });
+    }
+
+    const { error } = await supabase
+      .from('items')
+      .update({
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', req.params.id);
+
+    if (error) throw error;
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Bump item error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });

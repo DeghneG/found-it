@@ -64,6 +64,7 @@ const Items = {
         <div class="item-card-footer">
           <span class="item-poster">by <strong>${escapeHtml(item.user_name)}</strong> · ${timeAgo(item.created_at)}</span>
           <div class="item-actions">
+            ${item.status === 'lost' && isOwner ? `<button class="btn btn-sm btn-ghost" style="padding: 4px; height: auto;" onclick="event.stopPropagation(); Items.bumpItem(${item.id})" title="Bump to top"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg></button>` : ''}
             <span class="status-badge status-${item.status}">${item.status}</span>
           </div>
         </div>
@@ -98,6 +99,7 @@ const Items = {
         <div class="modal-item-actions">
           ${item.status === 'lost' && !isOwner && Auth.currentUser ? `<button class="btn btn-primary" onclick="Chat.startChat(${item.id}, ${item.user_id}, '${escapeHtml(item.user_name)}', '${escapeHtml(item.title)}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Message Poster</button>` : ''}
           ${item.status === 'lost' && (isOwner || isAdmin) ? `<button class="btn btn-success" onclick="Items.markFound(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Mark as Found</button>` : ''}
+          ${item.status === 'lost' && isOwner ? `<button class="btn" style="background:var(--bg-glass);color:var(--text-primary);border:1px solid var(--border);" onclick="Items.bumpItem(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>Bump</button>` : ''}
           ${isOwner || isAdmin ? `<button class="btn btn-ghost" onclick="Items.editItem(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>` : ''}
           ${isOwner || isAdmin ? `<button class="btn btn-danger" onclick="Items.confirmDelete(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete</button>` : ''}
         </div>`;
@@ -112,6 +114,17 @@ const Items = {
     try {
       await apiRequest(`/api/items/${itemId}/found`, { method: 'PUT' });
       showToast('Item marked as found!', 'success');
+      document.getElementById('item-modal').classList.add('hidden');
+      App.refreshCurrentView();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  },
+
+  async bumpItem(itemId) {
+    try {
+      await apiRequest(`/api/items/${itemId}/bump`, { method: 'PUT' });
+      showToast('Item bumped! It is now at the top.', 'success');
       document.getElementById('item-modal').classList.add('hidden');
       App.refreshCurrentView();
     } catch (err) {
@@ -232,7 +245,7 @@ const Items = {
           showToast('Item updated!', 'success');
         } else {
           await apiRequest('/api/items', { method: 'POST', body: JSON.stringify(payload) });
-          showToast('Item posted!', 'success');
+          showToast('Item posted! Remember to bump it within 2 months.', 'success');
         }
         Items.resetForm();
         App.switchView('dashboard');
