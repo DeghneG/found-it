@@ -42,6 +42,14 @@
           <input type="email" id="login-email" placeholder="your.email@usa.edu.ph" autocomplete="email">
         </div>
         <div class="form-group">
+          <label for="login-status">Status</label>
+          <select id="login-status">
+            <option value="Student">Student</option>
+            <option value="Teacher">Teacher</option>
+            <option value="School Staff">School Staff</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label for="login-password">Password</label>
           <div class="password-wrapper">
             <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
@@ -66,6 +74,14 @@
         <div class="form-group">
           <label for="register-email">Email</label>
           <input type="email" id="register-email" placeholder="your.email@usa.edu.ph" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="register-status">Status</label>
+          <select id="register-status">
+            <option value="Student">Student</option>
+            <option value="Teacher">Teacher</option>
+            <option value="School Staff">School Staff</option>
+          </select>
         </div>
         <div class="form-group">
           <label for="register-password">Password</label>
@@ -416,10 +432,19 @@
               <div class="profile-avatar-info">
                 <h2 id="profile-display-name">User</h2>
                 <p id="profile-display-email">user@email.com</p>
+                <p id="profile-display-status" style="color:var(--gold);font-size:0.85rem;font-weight:600;margin-top:4px;">Status: <span id="status-text">Student</span></p>
                 <span id="profile-admin-tag" class="admin-badge hidden">Admin</span>
               </div>
             </div>
             <form id="profile-form" class="profile-form">
+              <div class="form-group">
+                <label for="profile-status">Status</label>
+                <select id="profile-status">
+                  <option value="Student">Student</option>
+                  <option value="Teacher">Teacher</option>
+                  <option value="School Staff">School Staff</option>
+                </select>
+              </div>
               <div class="form-group">
                 <label for="profile-name">Full Name</label>
                 <input type="text" id="profile-name" placeholder="Your full name">

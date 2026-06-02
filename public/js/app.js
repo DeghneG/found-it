@@ -235,6 +235,11 @@ const App = {
           document.getElementById('profile-display-name').textContent = data.user.name;
           document.getElementById('profile-avatar-large').textContent = data.user.name[0].toUpperCase();
           document.getElementById('profile-new-password').value = '';
+          
+          const newStatus = document.getElementById('profile-status').value;
+          localStorage.setItem(`user_status_${data.user.email}`, newStatus);
+          document.getElementById('status-text').textContent = newStatus;
+          
           profileSuccess.textContent = 'Profile updated successfully!';
           profileSuccess.classList.remove('hidden');
           showToast('Profile updated!', 'success');
@@ -254,6 +259,14 @@ const App = {
     const user = Auth.currentUser;
     document.getElementById('profile-display-name').textContent = user.name;
     document.getElementById('profile-display-email').textContent = user.email;
+    
+    const savedStatus = localStorage.getItem(`user_status_${user.email}`) || 'N/A';
+    document.getElementById('status-text').textContent = savedStatus;
+    const statusSelect = document.getElementById('profile-status');
+    if (statusSelect && savedStatus !== 'N/A') {
+      statusSelect.value = savedStatus;
+    }
+    
     document.getElementById('profile-avatar-large').textContent = user.name[0].toUpperCase();
     document.getElementById('profile-name').value = user.name;
     document.getElementById('profile-email').value = user.email;
