@@ -444,3 +444,19 @@ img{max-width:100%;display:block}
 .message-bubble .chat-attachment-media {
   margin-bottom: 4px;
 }
+
+/* Toast Notifications */
+.toast-highlight {
+  border: 1px solid var(--primary);
+  box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+  animation: pulse-glow 2s infinite;
+}
+@keyframes pulse-glow {
+  0% { box-shadow: 0 4px 15px rgba(255, 68, 68, 0.2); }
+  50% { box-shadow: 0 4px 20px rgba(255, 68, 68, 0.5); }
+  100% { box-shadow: 0 4px 15px rgba(255, 68, 68, 0.2); }
+}
+.toast-close:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px;
+}

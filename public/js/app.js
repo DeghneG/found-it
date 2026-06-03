@@ -116,7 +116,13 @@ const App = {
               return;
             }
             const senderName = msg.sender?.name || 'Someone';
-            showToast(`New message from ${senderName}`, 'info');
+            showToast(`New message from ${senderName}`, 'info', {
+              autoClose: false,
+              highlight: true,
+              onClick: () => {
+                Chat.startChat(msg.item_id, msg.sender_id, senderName, 'Item');
+              }
+            });
             hasNewMessages = true;
           });
         }
@@ -128,14 +134,26 @@ const App = {
         
         if (data.foundItems && data.foundItems.length > 0) {
           data.foundItems.forEach(item => {
-            showToast(`Good news! Your item "${item.title}" has been found.`, 'success');
+            showToast(`Good news! Your item "${item.title}" has been found.`, 'success', {
+              autoClose: false,
+              highlight: true,
+              onClick: () => {
+                Items.showItemDetail(item.id);
+              }
+            });
           });
         }
 
         // Watchlist alerts
         if (data.watchlistMatches && data.watchlistMatches.length > 0) {
           data.watchlistMatches.forEach(m => {
-            showToast(`🔔 Watchlist match: "${m.item_title}" matches your keyword "${m.keyword}"`, 'info');
+            showToast(`🔔 Watchlist match: "${m.item_title}" matches your keyword "${m.keyword}"`, 'info', {
+              autoClose: false,
+              highlight: true,
+              onClick: () => {
+                Items.showItemDetail(m.item_id);
+              }
+            });
           });
         }
 
@@ -144,7 +162,13 @@ const App = {
           data.newClaims.forEach(c => {
             const name = c.claimer?.name || 'Someone';
             const title = c.items?.title || 'your item';
-            showToast(`📋 ${name} submitted a claim on "${title}"`, 'info');
+            showToast(`📋 ${name} submitted a claim on "${title}"`, 'info', {
+              autoClose: false,
+              highlight: true,
+              onClick: () => {
+                Items.viewClaims(c.item_id);
+              }
+            });
           });
         }
         
