@@ -79,6 +79,8 @@ const App = {
     document.getElementById('user-avatar').textContent = user.name[0].toUpperCase();
     if (user.isAdmin) {
       document.getElementById('admin-badge').classList.remove('hidden');
+    } else {
+      document.getElementById('admin-badge').classList.add('hidden');
     }
 
     // Initialize chat

@@ -3,6 +3,7 @@ const Chat = {
   currentChat: null,
   pollInterval: null,
   lastMessageTime: null,
+  selectedAttachment: null,
 
   init() {
     this.updateUnreadBadge();
@@ -10,6 +11,12 @@ const Chat = {
     // Chat input
     document.getElementById('chat-send-btn').addEventListener('click', () => this.sendMessage());
     document.getElementById('chat-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.sendMessage(); });
+    
+    // Attachment handling
+    document.getElementById('chat-attach-btn').addEventListener('click', () => document.getElementById('chat-attachment-input').click());
+    document.getElementById('chat-attachment-input').addEventListener('change', (e) => this.handleAttachmentSelect(e));
+    document.getElementById('chat-attachment-remove').addEventListener('click', () => this.removeAttachment());
+
     document.getElementById('chat-back-btn').addEventListener('click', () => {
       document.getElementById('chat-active').classList.add('hidden');
       document.querySelector('.chat-placeholder').classList.remove('hidden');
@@ -116,7 +123,17 @@ const Chat = {
     const container = document.getElementById('chat-messages');
     const div = document.createElement('div');
     div.className = `message ${isSent ? 'message-sent' : 'message-received'}`;
-    div.innerHTML = `${escapeHtml(msg.content)}<span class="message-time">${timeAgo(msg.created_at)}</span>`;
+    
+    let mediaHtml = '';
+    if (msg.attachment_url) {
+      if (msg.attachment_type === 'video') {
+        mediaHtml = `<video class="chat-attachment-media" src="${escapeHtml(msg.attachment_url)}" controls></video>`;
+      } else {
+        mediaHtml = `<img class="chat-attachment-media" src="${escapeHtml(msg.attachment_url)}" alt="Attachment" onclick="window.open(this.src, '_blank')" style="cursor:zoom-in;">`;
+      }
+    }
+    
+    div.innerHTML = `${mediaHtml}${msg.content ? escapeHtml(msg.content) : ''}<span class="message-time">${timeAgo(msg.created_at)}</span>`;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
   },
@@ -124,28 +141,76 @@ const Chat = {
   async sendMessage() {
     const input = document.getElementById('chat-input');
     const content = input.value.trim();
-    if (!content || !this.currentChat) return;
+    if (!this.currentChat || (!content && !this.selectedAttachment)) return;
 
     input.value = '';
+    const sendBtn = document.getElementById('chat-send-btn');
+    sendBtn.disabled = true;
     
     try {
+      let attachment_url = null;
+      let attachment_type = null;
+
+      if (this.selectedAttachment) {
+        const formData = new FormData();
+        formData.append('file', this.selectedAttachment);
+        
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) {
+          attachment_url = uploadData.url;
+          attachment_type = uploadData.type;
+        } else {
+          throw new Error(uploadData.error || 'Upload failed');
+        }
+      }
+
       const data = await apiRequest('/api/chat/send', {
         method: 'POST',
         body: JSON.stringify({
           receiver_id: this.currentChat.otherUserId,
           item_id: this.currentChat.itemId,
-          content
+          content,
+          attachment_url,
+          attachment_type
         })
       });
 
       if (data.success && data.message) {
-        // Force refresh to show sent message
+        this.removeAttachment();
         await this.fetchMessages();
         this.loadConversations();
       }
     } catch (err) {
-      showToast('Failed to send message', 'error');
+      showToast(err.message || 'Failed to send message', 'error');
+    } finally {
+      sendBtn.disabled = false;
     }
+  },
+
+  handleAttachmentSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // 20MB limit
+    if (file.size > 20 * 1024 * 1024) {
+      showToast('File must be smaller than 20MB', 'error');
+      this.removeAttachment();
+      return;
+    }
+
+    this.selectedAttachment = file;
+    document.getElementById('chat-attachment-name').textContent = file.name;
+    document.getElementById('chat-attachment-preview').classList.remove('hidden');
+  },
+
+  removeAttachment() {
+    this.selectedAttachment = null;
+    document.getElementById('chat-attachment-input').value = '';
+    document.getElementById('chat-attachment-preview').classList.add('hidden');
   },
 
   async markRead() {

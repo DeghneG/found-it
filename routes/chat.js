@@ -50,7 +50,7 @@ router.get('/conversations', requireAuth, async (req, res) => {
           item_id: itemId,
           item_title: m.items?.title || 'Unknown Item',
           other_user_name: otherUserName || 'Unknown User',
-          last_message: m.content,
+          last_message: m.attachment_url ? (m.content || '📎 Attachment') : m.content,
           last_message_time: m.created_at,
           unread_count: (!isSender && !m.is_read) ? 1 : 0
         });
@@ -118,10 +118,10 @@ router.get('/messages/:itemId/:otherUserId', requireAuth, async (req, res) => {
 // Send a message
 router.post('/send', requireAuth, async (req, res) => {
   try {
-    const { receiver_id, item_id, content } = req.body;
+    const { receiver_id, item_id, content, attachment_url, attachment_type } = req.body;
 
-    if (!receiver_id || !item_id || !content) {
-      return res.status(400).json({ error: 'All fields are required' });
+    if (!receiver_id || !item_id || (!content && !attachment_url)) {
+      return res.status(400).json({ error: 'Message content or attachment is required' });
     }
 
     const { data, error } = await supabase
@@ -130,7 +130,9 @@ router.post('/send', requireAuth, async (req, res) => {
         sender_id: req.session.userId,
         receiver_id,
         item_id,
-        content
+        content: content || '',
+        attachment_url,
+        attachment_type
       }])
       .select()
       .single();
@@ -145,7 +147,9 @@ router.post('/send', requireAuth, async (req, res) => {
         sender_name: req.session.userName,
         receiver_id,
         item_id,
-        content,
+        content: content || '',
+        attachment_url: data.attachment_url,
+        attachment_type: data.attachment_type,
         created_at: data.created_at
       }
     });
