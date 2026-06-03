@@ -49,7 +49,7 @@ const Items = {
       if (days <= 3) { ageClass = 'age-fresh'; ageBadge = '<span class="age-badge age-badge-fresh">Fresh</span>'; }
       else if (days <= 7) { ageClass = 'age-recent'; ageBadge = '<span class="age-badge age-badge-recent">1 Week</span>'; }
       else if (days <= 14) { ageClass = 'age-warning'; ageBadge = `<span class="age-badge age-badge-warning">${days}d</span>`; }
-      else { ageClass = 'age-overdue'; ageBadge = `<span class="age-badge age-badge-overdue">${days}d Overdue</span>`; }
+      else { ageClass = 'age-overdue'; ageBadge = `<span class="age-badge age-badge-overdue">OVERDUE</span>`; }
     }
 
     // Status badge text
@@ -77,7 +77,7 @@ const Items = {
           </div>
         </div>
         <div class="item-card-footer">
-          <span class="item-poster">by <strong>${escapeHtml(item.user_name)}</strong> · ${timeAgo(item.created_at)}</span>
+          <span class="item-poster">by <strong>${isOwner ? 'You' : escapeHtml(item.user_name)}</strong> · ${timeAgo(item.created_at)}</span>
           <div class="item-actions">
             ${ageBadge}
             ${item.status === 'lost' && isOwner ? `<button class="btn btn-sm btn-ghost" style="padding: 4px; height: auto;" onclick="event.stopPropagation(); Items.bumpItem(${item.id})" title="Bump to top"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg></button>` : ''}
@@ -114,7 +114,7 @@ const Items = {
           <div class="detail-item"><div class="detail-label">Category</div><div class="detail-value">${escapeHtml(item.category)}</div></div>
           <div class="detail-item"><div class="detail-label">Location</div><div class="detail-value"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${escapeHtml(item.location)}</div></div>
           <div class="detail-item"><div class="detail-label">Date Lost</div><div class="detail-value">${formatDate(item.date_lost)}</div></div>
-          <div class="detail-item"><div class="detail-label">Posted by</div><div class="detail-value">${escapeHtml(item.user_name)}</div></div>
+          <div class="detail-item"><div class="detail-label">Posted by</div><div class="detail-value">${isOwner ? 'You' : escapeHtml(item.user_name)}</div></div>
           ${item.status === 'found' || item.status === 'returned' ? `<div class="detail-item"><div class="detail-label">Found by</div><div class="detail-value">${escapeHtml(item.found_by || 'N/A')}</div></div>
           <div class="detail-item"><div class="detail-label">Found date</div><div class="detail-value">${formatDate(item.found_date)}</div></div>` : ''}
         </div>

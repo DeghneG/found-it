@@ -70,8 +70,6 @@ const Auth = {
       loginBtn.disabled = true;
       loginBtn.textContent = 'Signing in...';
       try {
-        const status = document.getElementById('login-status').value;
-        localStorage.setItem(`user_status_${email}`, status);
         await this.login(email, password);
         App.showApp();
       } catch (err) {
