@@ -22,7 +22,11 @@ router.get('/', async (req, res) => {
     query = query.gte('created_at', sixtyDaysAgo.toISOString());
 
     if (status) {
-      query = query.eq('status', status);
+      if (status === 'found') {
+        query = query.in('status', ['found', 'returned']);
+      } else {
+        query = query.eq('status', status);
+      }
     }
 
     if (category && category !== 'all') {
@@ -121,7 +125,7 @@ router.get('/:id', async (req, res) => {
 // Create item
 router.post('/', requireAuth, async (req, res) => {
   try {
-    const { title, description, category, location, date_lost, image_url } = req.body;
+    const { title, description, category, location, date_lost, image_url, verification_question } = req.body;
 
     if (!title || !description || !category || !location || !date_lost) {
       return res.status(400).json({ error: 'All required fields must be filled' });
@@ -136,7 +140,8 @@ router.post('/', requireAuth, async (req, res) => {
         category,
         location,
         date_lost,
-        image_url: image_url || null
+        image_url: image_url || null,
+        verification_question: verification_question || null
       }])
       .select()
       .single();
@@ -153,7 +158,7 @@ router.post('/', requireAuth, async (req, res) => {
 // Update item
 router.put('/:id', requireAuth, async (req, res) => {
   try {
-    const { title, description, category, location, date_lost, image_url } = req.body;
+    const { title, description, category, location, date_lost, image_url, verification_question } = req.body;
 
     // Check ownership or admin
     const { data: check, error: checkError } = await supabase
@@ -179,6 +184,7 @@ router.put('/:id', requireAuth, async (req, res) => {
         location,
         date_lost,
         image_url: image_url || null,
+        verification_question: verification_question || null,
         updated_at: new Date().toISOString()
       })
       .eq('id', req.params.id);
@@ -291,6 +297,40 @@ router.put('/:id/bump', requireAuth, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error('Bump item error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Mark item as returned (reunited)
+router.put('/:id/returned', requireAuth, async (req, res) => {
+  try {
+    const { data: check, error: checkError } = await supabase
+      .from('items')
+      .select('user_id, status')
+      .eq('id', req.params.id)
+      .single();
+
+    if (checkError || !check) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+
+    if (check.user_id !== req.session.userId && !req.session.isAdmin) {
+      return res.status(403).json({ error: 'Only the poster or admin can mark items as returned' });
+    }
+
+    const { error } = await supabase
+      .from('items')
+      .update({
+        status: 'returned',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', req.params.id);
+
+    if (error) throw error;
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Mark returned error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });

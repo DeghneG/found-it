@@ -98,8 +98,10 @@ const Auth = {
         registerError.classList.remove('hidden');
         return;
       }
-      if (password.length < 6) {
-        registerError.textContent = 'Password must be at least 6 characters';
+      const letterCount = (password.match(/[a-zA-Z]/g) || []).length;
+      const numberCount = (password.match(/\d/g) || []).length;
+      if (letterCount < 6 || numberCount < 1) {
+        registerError.textContent = 'Password must contain at least 6 letters and at least 1 number';
         registerError.classList.remove('hidden');
         return;
       }

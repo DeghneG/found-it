@@ -43,9 +43,24 @@ const Items = {
     const isOwner = Auth.currentUser && Auth.currentUser.id === item.user_id;
     const isAdmin = Auth.currentUser && Auth.currentUser.isAdmin;
 
+    // Age tier for lost items
+    let ageClass = '', ageBadge = '';
+    if (item.status === 'lost') {
+      if (days <= 3) { ageClass = 'age-fresh'; ageBadge = '<span class="age-badge age-badge-fresh">Fresh</span>'; }
+      else if (days <= 7) { ageClass = 'age-recent'; ageBadge = '<span class="age-badge age-badge-recent">1 Week</span>'; }
+      else if (days <= 14) { ageClass = 'age-warning'; ageBadge = `<span class="age-badge age-badge-warning">${days}d</span>`; }
+      else { ageClass = 'age-overdue'; ageBadge = `<span class="age-badge age-badge-overdue">${days}d Overdue</span>`; }
+    }
+
+    // Status badge text
+    let statusText = item.status;
+    let statusClass = `status-${item.status}`;
+    if (item.status === 'returned') { statusText = '✓ Returned'; statusClass = 'status-returned'; }
+    else if (item.status === 'found') { statusText = '✓ Found'; }
+
     return `
-      <div class="item-card" data-id="${item.id}">
-        ${isLongLost ? '<div class="long-lost-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${days}d</div>' : ''}
+      <div class="item-card ${ageClass}" data-id="${item.id}">
+        ${isLongLost ? '<div class="long-lost-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + days + 'd</div>' : ''}
         ${item.image_url
           ? `<img class="item-card-image" src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy">`
           : `<div class="item-card-image-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`
@@ -64,8 +79,9 @@ const Items = {
         <div class="item-card-footer">
           <span class="item-poster">by <strong>${escapeHtml(item.user_name)}</strong> · ${timeAgo(item.created_at)}</span>
           <div class="item-actions">
+            ${ageBadge}
             ${item.status === 'lost' && isOwner ? `<button class="btn btn-sm btn-ghost" style="padding: 4px; height: auto;" onclick="event.stopPropagation(); Items.bumpItem(${item.id})" title="Bump to top"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg></button>` : ''}
-            <span class="status-badge status-${item.status}">${item.status}</span>
+            <span class="status-badge ${statusClass}">${statusText}</span>
           </div>
         </div>
       </div>`;
@@ -79,26 +95,35 @@ const Items = {
       const isAdmin = Auth.currentUser && Auth.currentUser.isAdmin;
       const days = daysAgo(item.created_at);
 
+      // Status display
+      let statusBadge = '';
+      if (item.status === 'returned') statusBadge = '<span class="status-badge status-returned modal-item-status">✓ Returned</span>';
+      else if (item.status === 'found') statusBadge = '<span class="status-badge status-found modal-item-status">✓ Found</span>';
+      else statusBadge = '<span class="status-badge status-lost modal-item-status">○ Lost</span>';
+
       const modal = document.getElementById('item-modal');
       const body = document.getElementById('modal-body');
 
       body.innerHTML = `
         ${item.image_url ? `<img class="modal-item-image" src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}">` : ''}
         <h2 class="modal-item-title">${escapeHtml(item.title)}</h2>
-        <span class="status-badge status-${item.status} modal-item-status">${item.status === 'found' ? '✓ Found' : '○ Lost'}</span>
+        ${statusBadge}
         ${item.status === 'lost' && days >= 14 ? `<span class="long-lost-badge" style="position:static;display:inline-flex;margin-left:8px">⚠ ${days} days</span>` : ''}
         <p class="modal-item-desc">${escapeHtml(item.description)}</p>
         <div class="modal-item-details">
           <div class="detail-item"><div class="detail-label">Category</div><div class="detail-value">${escapeHtml(item.category)}</div></div>
-          <div class="detail-item"><div class="detail-label">Location</div><div class="detail-value">${escapeHtml(item.location)}</div></div>
+          <div class="detail-item"><div class="detail-label">Location</div><div class="detail-value"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>${escapeHtml(item.location)}</div></div>
           <div class="detail-item"><div class="detail-label">Date Lost</div><div class="detail-value">${formatDate(item.date_lost)}</div></div>
           <div class="detail-item"><div class="detail-label">Posted by</div><div class="detail-value">${escapeHtml(item.user_name)}</div></div>
-          ${item.status === 'found' ? `<div class="detail-item"><div class="detail-label">Found by</div><div class="detail-value">${escapeHtml(item.found_by || 'N/A')}</div></div>
+          ${item.status === 'found' || item.status === 'returned' ? `<div class="detail-item"><div class="detail-label">Found by</div><div class="detail-value">${escapeHtml(item.found_by || 'N/A')}</div></div>
           <div class="detail-item"><div class="detail-label">Found date</div><div class="detail-value">${formatDate(item.found_date)}</div></div>` : ''}
         </div>
         <div class="modal-item-actions">
           ${item.status === 'lost' && !isOwner && Auth.currentUser ? `<button class="btn btn-primary" onclick="Chat.startChat(${item.id}, ${item.user_id}, '${escapeHtml(item.user_name)}', '${escapeHtml(item.title)}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Message Poster</button>` : ''}
+          ${item.status === 'lost' && !isOwner && Auth.currentUser ? `<button class="btn btn-success" onclick="Items.openClaimModal(${item.id}, '${escapeHtml(item.verification_question || '')}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>Claim This Item</button>` : ''}
           ${item.status === 'lost' && (isOwner || isAdmin) ? `<button class="btn btn-success" onclick="Items.markFound(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Mark as Found</button>` : ''}
+          ${item.status === 'found' && (isOwner || isAdmin) ? `<button class="btn btn-success" onclick="Items.markReturned(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Mark as Returned</button>` : ''}
+          ${item.status === 'lost' && (isOwner || isAdmin) ? `<button class="btn" style="background:var(--bg-glass);color:var(--text-primary);border:1px solid var(--border);" onclick="Items.viewClaims(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>View Claims</button>` : ''}
           ${item.status === 'lost' && isOwner ? `<button class="btn" style="background:var(--bg-glass);color:var(--text-primary);border:1px solid var(--border);" onclick="Items.bumpItem(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>Bump</button>` : ''}
           ${isOwner || isAdmin ? `<button class="btn btn-ghost" onclick="Items.editItem(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>` : ''}
           ${isOwner || isAdmin ? `<button class="btn btn-danger" onclick="Items.confirmDelete(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete</button>` : ''}
@@ -141,9 +166,23 @@ const Items = {
       document.getElementById('item-title').value = item.title;
       document.getElementById('item-description').value = item.description;
       document.getElementById('item-category').value = item.category;
-      document.getElementById('item-location').value = item.location;
+
+      // Handle location dropdown
+      const locSelect = document.getElementById('item-location');
+      const locOther = document.getElementById('item-location-other');
+      const options = Array.from(locSelect.options).map(o => o.value);
+      if (options.includes(item.location)) {
+        locSelect.value = item.location;
+        locOther.classList.add('hidden');
+      } else {
+        locSelect.value = 'Other';
+        locOther.value = item.location;
+        locOther.classList.remove('hidden');
+      }
+
       document.getElementById('item-date').value = item.date_lost;
       document.getElementById('item-image-url').value = item.image_url || '';
+      document.getElementById('item-verification').value = item.verification_question || '';
       document.getElementById('post-form-title').textContent = 'Edit Item';
       document.getElementById('submit-post').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Save Changes';
 
@@ -186,6 +225,20 @@ const Items = {
     const removeBtn = document.getElementById('remove-image');
     const formError = document.getElementById('form-error');
 
+    // Location "Other" toggle
+    const locationSelect = document.getElementById('item-location');
+    const locationOther = document.getElementById('item-location-other');
+    locationSelect.addEventListener('change', () => {
+      if (locationSelect.value === 'Other') {
+        locationOther.classList.remove('hidden');
+        locationOther.required = true;
+      } else {
+        locationOther.classList.add('hidden');
+        locationOther.required = false;
+        locationOther.value = '';
+      }
+    });
+
     uploadArea.addEventListener('click', () => fileInput.click());
     uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
     uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
@@ -224,13 +277,16 @@ const Items = {
       e.preventDefault();
       formError.classList.add('hidden');
       const itemId = document.getElementById('edit-item-id').value;
+      const locationVal = document.getElementById('item-location').value;
+      const locationOtherVal = document.getElementById('item-location-other').value.trim();
       const payload = {
         title: document.getElementById('item-title').value.trim(),
         description: document.getElementById('item-description').value.trim(),
         category: document.getElementById('item-category').value,
-        location: document.getElementById('item-location').value.trim(),
+        location: locationVal === 'Other' ? locationOtherVal : locationVal,
         date_lost: document.getElementById('item-date').value,
-        image_url: document.getElementById('item-image-url').value || null
+        image_url: document.getElementById('item-image-url').value || null,
+        verification_question: document.getElementById('item-verification').value.trim() || null
       };
 
       if (!payload.title || !payload.description || !payload.category || !payload.location || !payload.date_lost) {
@@ -268,6 +324,8 @@ const Items = {
     document.getElementById('image-preview').classList.add('hidden');
     document.getElementById('upload-area').classList.remove('hidden');
     document.getElementById('form-error').classList.add('hidden');
+    document.getElementById('item-location-other').classList.add('hidden');
+    document.getElementById('item-verification').value = '';
     document.getElementById('post-form-title').textContent = 'Report a Lost Item';
     document.getElementById('submit-post').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Post Item';
   },
@@ -316,5 +374,122 @@ const Items = {
 
   async loadLongLost() {
     await this.loadItems('long-lost-grid', { longLost: 'true' });
+  },
+
+  // Mark as returned (reunited)
+  async markReturned(itemId) {
+    try {
+      await apiRequest(`/api/items/${itemId}/returned`, { method: 'PUT' });
+      showToast('Item marked as returned! 🎉', 'success');
+      document.getElementById('item-modal').classList.add('hidden');
+      App.refreshCurrentView();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  },
+
+  // Claim workflow
+  _claimItemId: null,
+
+  openClaimModal(itemId, verificationQuestion) {
+    this._claimItemId = itemId;
+    const modal = document.getElementById('claim-modal');
+    const vqEl = document.getElementById('claim-verification-question');
+    document.getElementById('claim-proof').value = '';
+    document.getElementById('claim-error').classList.add('hidden');
+
+    if (verificationQuestion) {
+      vqEl.textContent = '❓ ' + verificationQuestion;
+      vqEl.classList.remove('hidden');
+    } else {
+      vqEl.classList.add('hidden');
+    }
+
+    modal.classList.remove('hidden');
+  },
+
+  async submitClaim() {
+    const proof = document.getElementById('claim-proof').value.trim();
+    const errEl = document.getElementById('claim-error');
+    if (!proof) {
+      errEl.textContent = 'Please describe your proof of ownership';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    try {
+      await apiRequest('/api/claims', {
+        method: 'POST',
+        body: JSON.stringify({ item_id: this._claimItemId, proof_description: proof })
+      });
+      document.getElementById('claim-modal').classList.add('hidden');
+      showToast('Claim submitted! The poster will review it.', 'success');
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.remove('hidden');
+    }
+  },
+
+  async viewClaims(itemId) {
+    try {
+      const data = await apiRequest(`/api/claims/item/${itemId}`);
+      const modal = document.getElementById('claims-list-modal');
+      const body = document.getElementById('claims-list-body');
+
+      if (!data.claims || data.claims.length === 0) {
+        body.innerHTML = '<div class="empty-state small"><p>No claims submitted yet.</p></div>';
+      } else {
+        body.innerHTML = data.claims.map(c => {
+          const name = c.claimer?.name || 'Unknown';
+          let statusHtml = '';
+          if (c.status === 'pending') statusHtml = `<span class="claim-status claim-pending">Pending</span>`;
+          else if (c.status === 'approved') statusHtml = `<span class="claim-status claim-approved">Approved</span>`;
+          else statusHtml = `<span class="claim-status claim-rejected">Rejected</span>`;
+
+          return `<div class="claim-card">
+            <div class="claim-card-header">
+              <span class="claim-user">${escapeHtml(name)}</span>
+              <div>${statusHtml} <span class="claim-time">${timeAgo(c.created_at)}</span></div>
+            </div>
+            <p class="claim-proof">${escapeHtml(c.proof_description)}</p>
+            ${c.status === 'pending' ? `<div class="claim-actions">
+              <button class="btn btn-sm btn-success" onclick="Items.approveClaim(${c.id})">Approve</button>
+              <button class="btn btn-sm btn-danger" onclick="Items.rejectClaim(${c.id})">Reject</button>
+            </div>` : ''}
+          </div>`;
+        }).join('');
+      }
+
+      modal.classList.remove('hidden');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  },
+
+  async approveClaim(claimId) {
+    try {
+      await apiRequest(`/api/claims/${claimId}/approve`, { method: 'PUT' });
+      showToast('Claim approved! Item marked as returned. 🎉', 'success');
+      document.getElementById('claims-list-modal').classList.add('hidden');
+      document.getElementById('item-modal').classList.add('hidden');
+      App.refreshCurrentView();
+    } catch (err) { showToast(err.message, 'error'); }
+  },
+
+  async rejectClaim(claimId) {
+    try {
+      await apiRequest(`/api/claims/${claimId}/reject`, { method: 'PUT' });
+      showToast('Claim rejected', 'info');
+      // Refresh claims list
+      document.getElementById('claims-list-modal').classList.add('hidden');
+    } catch (err) { showToast(err.message, 'error'); }
   }
 };
+
+// Wire up claim modal events
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('claim-submit-btn').addEventListener('click', () => Items.submitClaim());
+  document.getElementById('claim-modal-close').addEventListener('click', () => document.getElementById('claim-modal').classList.add('hidden'));
+  document.getElementById('claim-overlay').addEventListener('click', () => document.getElementById('claim-modal').classList.add('hidden'));
+  document.getElementById('claims-list-close').addEventListener('click', () => document.getElementById('claims-list-modal').classList.add('hidden'));
+  document.getElementById('claims-list-overlay').addEventListener('click', () => document.getElementById('claims-list-modal').classList.add('hidden'));
+});

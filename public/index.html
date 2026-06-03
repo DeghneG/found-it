@@ -143,20 +143,12 @@
           <span>Messages</span>
           <span id="unread-badge" class="badge hidden">0</span>
         </a>
+        <a href="#" class="nav-link" data-view="watchlist" id="nav-watchlist">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>Watchlist</span>
+        </a>
       </div>
 
-      <div class="nav-user">
-        <div class="user-info user-info-clickable" id="user-profile-btn" title="Edit Profile">
-          <div class="user-avatar" id="user-avatar">U</div>
-          <span id="user-name-display">User</span>
-          <span id="admin-badge" class="admin-badge hidden">Admin</span>
-          <svg class="profile-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>
-        <button id="logout-btn" class="btn btn-ghost btn-sm logout-btn-container" title="Logout">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          <span class="logout-text hidden">Sign Out</span>
-        </button>
-      </div>
     </nav>
 
     <!-- Mobile Nav Toggle -->
@@ -282,12 +274,43 @@
           <div class="form-row">
             <div class="form-group">
               <label for="item-location">Where Last Seen *</label>
-              <input type="text" id="item-location" placeholder="e.g. Library 2nd Floor, Room 301" required>
+              <select id="item-location" required>
+                <option value="">Select location</option>
+                <option value="Herrera Hall">Herrera Hall</option>
+                <option value="Mentrida Hall">Mentrida Hall</option>
+                <option value="Fray Luis De Leon Hall">Fray Luis De Leon Hall</option>
+                <option value="Rada Hall">Rada Hall</option>
+                <option value="Lana Hall">Lana Hall</option>
+                <option value="Aguirre Hall">Aguirre Hall</option>
+                <option value="Mercado Hall">Mercado Hall</option>
+                <option value="Swimming Pool Area">Swimming Pool Area</option>
+                <option value="Gamboa Hall">Gamboa Hall</option>
+                <option value="Dolse Garcia Hall">Dolse Garcia Hall</option>
+                <option value="Alumni Building">Alumni Building</option>
+                <option value="Blano Hall">Blano Hall</option>
+                <option value="Urdaneta Hall">Urdaneta Hall</option>
+                <option value="Injap Center">Injap Center</option>
+                <option value="PMT Building">PMT Building</option>
+                <option value="Mendel Hall">Mendel Hall</option>
+                <option value="Hotel Sta. Monica">Hotel Sta. Monica</option>
+                <option value="Gymnasium">Gymnasium</option>
+                <option value="Outside Court">Outside Court</option>
+                <option value="Grandstand">Grandstand</option>
+                <option value="Parking Lot">Parking Lot</option>
+                <option value="Football Field">Football Field</option>
+                <option value="Other">Other</option>
+              </select>
+              <input type="text" id="item-location-other" class="hidden" placeholder="Specify location..." style="margin-top:8px">
             </div>
             <div class="form-group">
               <label for="item-date">Date Lost *</label>
               <input type="date" id="item-date" onclick="this.showPicker()" onkeydown="return false;" style="cursor: pointer;" required>
             </div>
+          </div>
+          <div class="form-group">
+            <label for="item-verification">Verification Question (Optional)</label>
+            <input type="text" id="item-verification" placeholder="e.g. What is the lock screen wallpaper?">
+            <span style="font-size:.75rem;color:var(--text-muted);margin-top:4px;display:block">Claimers must answer this to prove ownership</span>
           </div>
           <div class="form-group">
             <label for="item-image">Photo (Optional)</label>
@@ -342,8 +365,8 @@
       <div id="view-found-items" class="view">
         <div class="view-header">
           <div>
-            <h1>Found Items History</h1>
-            <p class="view-subtitle">Items that have been recovered</p>
+            <h1>Recovered & Reunited</h1>
+            <p class="view-subtitle">Items that have been found or returned to their owners</p>
           </div>
         </div>
         <div id="found-items-grid" class="items-grid">
@@ -419,6 +442,40 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Watchlist View -->
+      <div id="view-watchlist" class="view">
+        <div class="view-header">
+          <div>
+            <h1>Watchlist</h1>
+            <p class="view-subtitle">Get notified when items matching your keywords are posted</p>
+          </div>
+        </div>
+        <div class="glass-card" style="margin-bottom:24px">
+          <div class="watchlist-form">
+            <input type="text" id="watchlist-keyword" placeholder="Enter a keyword (e.g. Calculator, AirPods)">
+            <select id="watchlist-category">
+              <option value="">All Categories</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Documents">Documents</option>
+              <option value="Accessories">Accessories</option>
+              <option value="Books">Books</option>
+              <option value="Other">Other</option>
+            </select>
+            <button class="btn btn-primary" onclick="App.addWatchlistItem()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add
+            </button>
+          </div>
+          <div id="watchlist-list" class="watchlist-items">
+            <div class="empty-state small">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <p>No watchlist items yet. Add a keyword above to get notified.</p>
             </div>
           </div>
         </div>
@@ -530,7 +587,65 @@
       </div>
     </main>
   </div>
+
+  <!-- Watchlist View (inserted outside main for simplicity but works via view system) -->
+
+  <!-- Claim Modal -->
+  <div id="claim-modal" class="modal hidden">
+    <div class="modal-overlay" id="claim-overlay"></div>
+    <div class="modal-content glass-card small-modal">
+      <button class="modal-close" id="claim-modal-close">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="claim-modal-body">
+        <h3>Claim This Item</h3>
+        <p>Provide proof that this item belongs to you.</p>
+        <div id="claim-verification-question" class="claim-verification-q hidden"></div>
+        <div class="form-group">
+          <label for="claim-proof">Your Answer / Proof</label>
+          <textarea id="claim-proof" rows="3" placeholder="Describe something only the real owner would know..."></textarea>
+        </div>
+        <div id="claim-error" class="form-error hidden"></div>
+        <button class="btn btn-primary btn-full" id="claim-submit-btn">Submit Claim</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Claims List Modal -->
+  <div id="claims-list-modal" class="modal hidden">
+    <div class="modal-overlay" id="claims-list-overlay"></div>
+    <div class="modal-content glass-card">
+      <button class="modal-close" id="claims-list-close">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <h3 style="margin-bottom:16px">Claims on Your Item</h3>
+      <div id="claims-list-body" class="claims-list"></div>
+    </div>
+  </div>
   
+  <div class="nav-user" id="global-nav-user">
+    <div class="user-info">
+      <div class="user-avatar" id="user-avatar">U</div>
+      <span id="user-name-display">User</span>
+      <span id="admin-badge" class="admin-badge hidden">Admin</span>
+      <div class="profile-dropdown-container">
+        <button id="profile-dropdown-btn" class="profile-arrow-btn" aria-label="Open profile menu">
+          <svg class="profile-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div id="profile-dropdown-menu" class="dropdown-menu hidden">
+          <button id="dropdown-profile-btn" class="dropdown-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Profile
+          </button>
+          <button id="dropdown-logout-btn" class="dropdown-item dropdown-item-danger">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign out
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <button id="theme-toggle" class="theme-toggle" aria-label="Toggle light/dark mode">
     <svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
     <svg class="moon-icon hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>

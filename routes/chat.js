@@ -19,7 +19,6 @@ router.get('/conversations', requireAuth, async (req, res) => {
         sender:sender_id (name),
         receiver:receiver_id (name)
       `)
-      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -28,9 +27,16 @@ router.get('/conversations', requireAuth, async (req, res) => {
       return res.json({ conversations: [] });
     }
 
+    // STRICT JS FILTERING FOR PRIVACY
+    const myMessages = messages.filter(m => m.sender_id === userId || m.receiver_id === userId);
+
+    if (myMessages.length === 0) {
+      return res.json({ conversations: [] });
+    }
+
     const convMap = new Map();
 
-    messages.forEach(m => {
+    myMessages.forEach(m => {
       const isSender = m.sender_id === userId;
       const otherUserId = isSender ? m.receiver_id : m.sender_id;
       const otherUserName = isSender ? m.receiver?.name : m.sender?.name;
@@ -87,12 +93,17 @@ router.get('/messages/:itemId/:otherUserId', requireAuth, async (req, res) => {
         sender:sender_id (name)
       `)
       .eq('item_id', itemId)
-      .or(`and(sender_id.eq.${userId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${userId})`)
       .order('created_at', { ascending: true });
 
     if (error) throw error;
 
-    const formattedMessages = (messages || []).map(m => ({
+    // STRICT JS FILTERING FOR PRIVACY
+    const privateMessages = (messages || []).filter(m => 
+      (m.sender_id === userId && m.receiver_id == otherUserId) || 
+      (m.sender_id == otherUserId && m.receiver_id === userId)
+    );
+
+    const formattedMessages = privateMessages.map(m => ({
       ...m,
       sender_name: m.sender?.name
     }));

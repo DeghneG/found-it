@@ -13,8 +13,10 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    const letterCount = (password.match(/[a-zA-Z]/g) || []).length;
+    const numberCount = (password.match(/\d/g) || []).length;
+    if (letterCount < 6 || numberCount < 1) {
+      return res.status(400).json({ error: 'Password must contain at least 6 letters and at least 1 number' });
     }
 
     // Check if email already exists
@@ -126,8 +128,10 @@ router.put('/profile', async (req, res) => {
     }
 
     if (newPassword) {
-      if (newPassword.length < 6) {
-        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+      const letterCount = (newPassword.match(/[a-zA-Z]/g) || []).length;
+      const numberCount = (newPassword.match(/\d/g) || []).length;
+      if (letterCount < 6 || numberCount < 1) {
+        return res.status(400).json({ error: 'Password must contain at least 6 letters and at least 1 number' });
       }
       updates.password = await bcrypt.hash(newPassword, 10);
     }

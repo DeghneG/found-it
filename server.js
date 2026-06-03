@@ -24,6 +24,9 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/items', require('./routes/items'));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/upload', require('./routes/upload'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/watchlist', require('./routes/watchlist'));
+app.use('/api/claims', require('./routes/claims'));
 
 // Catch-all route for SPA
 app.get('*', (req, res) => {

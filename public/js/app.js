@@ -87,8 +87,78 @@ const App = {
     // Load dashboard
     this.switchView('dashboard');
 
-    // Poll unread messages
-    setInterval(() => Chat.updateUnreadBadge(), 30000);
+    // Start notifications polling
+    this.startNotificationsPolling();
+  },
+
+  startNotificationsPolling() {
+    const user = Auth.currentUser;
+    const storageKey = `last_poll_${user.id}`;
+    let lastPollTime = localStorage.getItem(storageKey);
+    
+    // If no previous poll time, use current time minus 24 hours to catch recent offline activity
+    if (!lastPollTime) {
+      const d = new Date();
+      d.setHours(d.getHours() - 24);
+      lastPollTime = d.toISOString();
+    }
+
+    const poll = async () => {
+      try {
+        const data = await apiRequest(`/api/notifications?since=${encodeURIComponent(lastPollTime)}`);
+        
+        let hasNewMessages = false;
+        if (data.newMessages && data.newMessages.length > 0) {
+          data.newMessages.forEach(msg => {
+            if (Chat.currentChat && Chat.currentChat.otherUserId === msg.sender_id && Chat.currentChat.itemId === msg.item_id) {
+              return;
+            }
+            const senderName = msg.sender?.name || 'Someone';
+            showToast(`New message from ${senderName}`, 'info');
+            hasNewMessages = true;
+          });
+        }
+
+        if (hasNewMessages) {
+          Chat.updateUnreadBadge();
+          if (this.currentView === 'chat') Chat.loadConversations();
+        }
+        
+        if (data.foundItems && data.foundItems.length > 0) {
+          data.foundItems.forEach(item => {
+            showToast(`Good news! Your item "${item.title}" has been found.`, 'success');
+          });
+        }
+
+        // Watchlist alerts
+        if (data.watchlistMatches && data.watchlistMatches.length > 0) {
+          data.watchlistMatches.forEach(m => {
+            showToast(`🔔 Watchlist match: "${m.item_title}" matches your keyword "${m.keyword}"`, 'info');
+          });
+        }
+
+        // New claim alerts
+        if (data.newClaims && data.newClaims.length > 0) {
+          data.newClaims.forEach(c => {
+            const name = c.claimer?.name || 'Someone';
+            const title = c.items?.title || 'your item';
+            showToast(`📋 ${name} submitted a claim on "${title}"`, 'info');
+          });
+        }
+        
+        if (data.timestamp) {
+          lastPollTime = data.timestamp;
+          localStorage.setItem(storageKey, lastPollTime);
+        }
+      } catch (e) {
+        console.error('Notification poll error:', e);
+      }
+    };
+
+    // Initial check
+    poll();
+    // Poll every 15 seconds
+    setInterval(poll, 15000);
   },
 
   setupNavigation() {
@@ -105,49 +175,40 @@ const App = {
     document.getElementById('dashboard-post-btn').addEventListener('click', () => this.switchView('post-item'));
     document.getElementById('nav-brand').addEventListener('click', () => this.switchView('dashboard'));
 
-    // Logout
-    const logoutBtn = document.getElementById('logout-btn');
-    let logoutTimeout;
-    
-    logoutBtn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      
-      if (!logoutBtn.classList.contains('confirm-logout')) {
-        // First click: Ask for confirmation
-        logoutBtn.classList.add('confirm-logout');
-        logoutBtn.querySelector('.logout-text').classList.remove('hidden');
-        
-        // Reset after 3 seconds
-        clearTimeout(logoutTimeout);
-        logoutTimeout = setTimeout(() => {
-          logoutBtn.classList.remove('confirm-logout');
-          logoutBtn.querySelector('.logout-text').classList.add('hidden');
-        }, 3000);
-      } else {
-        // Second click: Actually logout
-        clearTimeout(logoutTimeout);
-        logoutBtn.classList.remove('confirm-logout');
-        logoutBtn.querySelector('.logout-text').classList.add('hidden');
-        
+    // Dropdown Profile & Logout Logic
+    const dropdownBtn = document.getElementById('profile-dropdown-btn');
+    const dropdownMenu = document.getElementById('profile-dropdown-menu');
+    const profileBtn = document.getElementById('dropdown-profile-btn');
+    const logoutBtn = document.getElementById('dropdown-logout-btn');
+
+    if (dropdownBtn && dropdownMenu) {
+      dropdownBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('hidden');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!dropdownMenu.contains(e.target) && !dropdownBtn.contains(e.target)) {
+          dropdownMenu.classList.add('hidden');
+        }
+      });
+    }
+
+    if (profileBtn) {
+      profileBtn.addEventListener('click', () => {
+        dropdownMenu.classList.add('hidden');
+        this.switchView('profile');
+      });
+    }
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async () => {
+        dropdownMenu.classList.add('hidden');
         await Auth.logout();
         document.getElementById('app').classList.add('hidden');
         document.getElementById('auth-screen').classList.remove('hidden');
-      }
-    });
-    
-    // Clicking anywhere else cancels the logout confirmation
-    document.addEventListener('click', (e) => {
-      if (logoutBtn.classList.contains('confirm-logout') && !logoutBtn.contains(e.target)) {
-        clearTimeout(logoutTimeout);
-        logoutBtn.classList.remove('confirm-logout');
-        logoutBtn.querySelector('.logout-text').classList.add('hidden');
-      }
-    });
-
-    // Profile button (clickable user area)
-    document.getElementById('user-profile-btn').addEventListener('click', () => {
-      this.switchView('profile');
-    });
+      });
+    }
 
     // Mobile nav
     const toggle = document.getElementById('mobile-nav-toggle');
@@ -184,6 +245,7 @@ const App = {
       case 'long-lost': Items.loadLongLost(); break;
       case 'chat': Chat.loadConversations(); break;
       case 'profile': this.loadProfile(); break;
+      case 'watchlist': this.loadWatchlist(); break;
       case 'post-item':
         if (!document.getElementById('edit-item-id').value) Items.resetForm();
         break;
@@ -192,6 +254,50 @@ const App = {
 
   refreshCurrentView() {
     this.switchView(this.currentView);
+  },
+
+  async loadWatchlist() {
+    try {
+      const data = await apiRequest('/api/watchlist');
+      const list = document.getElementById('watchlist-list');
+      if (!data.watchlist || data.watchlist.length === 0) {
+        list.innerHTML = '<div class="empty-state small"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><p>No watchlist items yet. Add a keyword above to get notified.</p></div>';
+        return;
+      }
+      list.innerHTML = data.watchlist.map(w => `
+        <div class="watchlist-item" data-id="${w.id}">
+          <div>
+            <span class="watchlist-keyword">${escapeHtml(w.keyword)}</span>
+            ${w.category ? `<span class="watchlist-category">${escapeHtml(w.category)}</span>` : '<span class="watchlist-category">All Categories</span>'}
+          </div>
+          <button class="watchlist-delete" onclick="App.deleteWatchlistItem(${w.id})" title="Remove">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>`).join('');
+    } catch (err) {
+      showToast('Failed to load watchlist', 'error');
+    }
+  },
+
+  async addWatchlistItem() {
+    const keyword = document.getElementById('watchlist-keyword').value.trim();
+    const category = document.getElementById('watchlist-category').value;
+    if (!keyword) { showToast('Enter a keyword', 'error'); return; }
+    try {
+      await apiRequest('/api/watchlist', { method: 'POST', body: JSON.stringify({ keyword, category: category || null }) });
+      document.getElementById('watchlist-keyword').value = '';
+      document.getElementById('watchlist-category').value = '';
+      showToast(`Watching for "${keyword}"`, 'success');
+      this.loadWatchlist();
+    } catch (err) { showToast(err.message, 'error'); }
+  },
+
+  async deleteWatchlistItem(id) {
+    try {
+      await apiRequest(`/api/watchlist/${id}`, { method: 'DELETE' });
+      showToast('Removed from watchlist', 'success');
+      this.loadWatchlist();
+    } catch (err) { showToast(err.message, 'error'); }
   },
 
   setupModals() {
