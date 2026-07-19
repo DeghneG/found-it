@@ -45,6 +45,7 @@ function seed() {
     {
       id: db.nextId('items'), user_id: 1, type: 'lost', status: 'lost',
       title: 'Samsung Galaxy A54 (Blue)', category: 'Electronics & Gadgets',
+      image_url: '/images/galaxy_a54.png',
       description: 'Blue Samsung Galaxy A54 with a clear silicone case and cracked screen protector. Last used near the 2nd floor corridor.',
       location: 'Herrera Hall', date_lost: dateStr(2),
       verification_question: 'What is the lock screen wallpaper?',
@@ -54,6 +55,7 @@ function seed() {
     {
       id: db.nextId('items'), user_id: 2, type: 'lost', status: 'lost',
       title: 'Black Jansport Backpack', category: 'Bags & Accessories',
+      image_url: '/images/backpack.png',
       description: 'Medium-sized black Jansport backpack with a small Philippine flag pin on the front pocket. Contains notebooks and a pencil case.',
       location: 'Mentrida Hall', date_lost: dateStr(5),
       verification_question: 'What color is the pencil case inside?',
@@ -63,6 +65,7 @@ function seed() {
     {
       id: db.nextId('items'), user_id: 1, type: 'lost', status: 'lost',
       title: 'University ID Card', category: 'Documents & IDs',
+      image_url: '/images/id_card.png',
       description: 'USA student ID card with my name and photo. Student number starts with 2023.',
       location: 'Gymnasium', date_lost: dateStr(1),
       verification_question: 'What is the student number on the ID?',
@@ -72,6 +75,7 @@ function seed() {
     {
       id: db.nextId('items'), user_id: 2, type: 'lost', status: 'lost',
       title: 'TI-84 Plus Calculator', category: 'Electronics & Gadgets',
+      image_url: '/images/calculator.png',
       description: 'Texas Instruments TI-84 Plus graphing calculator. Has a small scratch on the back cover and my name written in marker on the battery compartment.',
       location: 'Rada Hall', date_lost: dateStr(8),
       verification_question: null,
