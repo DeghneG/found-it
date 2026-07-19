@@ -407,10 +407,13 @@ img{max-width:100%;display:block}
   .navbar.open{transform:translateX(0)}
   .main-content{margin-left:0;padding:20px;padding-top:90px}
   .mobile-nav-toggle{display:flex}
-  .items-grid{grid-template-columns:1fr}
+  .items-grid{grid-template-columns:repeat(2, 1fr); gap:12px}
+  .item-card-image, .item-card-image-placeholder { height: 140px; }
+  .item-card-body { padding: 12px; }
+  .item-card-title { font-size: 1rem; }
+  .item-card-desc { display: none; } /* Hide description on mobile for compact view */
+  .item-card-footer { padding: 10px 12px; flex-direction: column; align-items: flex-start; gap: 8px; }
   .form-row{grid-template-columns:1fr}
-  .chat-container{grid-template-columns:1fr}
-  .chat-sidebar{display:none}
   .chat-sidebar.mobile-show{display:block;position:fixed;inset:0;z-index:200;background:var(--bg-card)}
   .chat-back-btn{display:flex}
   .modal-item-details{grid-template-columns:1fr}
