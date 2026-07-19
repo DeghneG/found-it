@@ -3,15 +3,12 @@ const App = {
   currentView: 'dashboard',
 
   async init() {
-    // Check auth
-    const isLoggedIn = await Auth.init();
+    // Bypass auth to go straight to dashboard
+    Auth.currentUser = { id: '00000000-0000-0000-0000-000000000000', name: 'Guest User', email: 'guest@usa.edu.ph', isAdmin: true };
+    
     document.getElementById('loading-screen').classList.add('fade-out');
 
-    if (isLoggedIn) {
-      this.showApp();
-    } else {
-      document.getElementById('auth-screen').classList.remove('hidden');
-    }
+    this.showApp();
 
     Auth.setupUI();
     this.setupNavigation();
