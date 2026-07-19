@@ -57,6 +57,7 @@ const Items = {
     let statusClass = `status-${item.status}`;
     if (item.status === 'returned') { statusText = '✓ Returned'; statusClass = 'status-returned'; }
     else if (item.status === 'found') { statusText = '✓ Found'; }
+    else if (item.status === 'lost') { statusText = '○ Lost'; statusClass = 'status-lost'; }
 
     return `
       <div class="item-card ${ageClass}" data-id="${item.id}">
@@ -80,11 +81,43 @@ const Items = {
           <span class="item-poster">by <strong>${isOwner ? 'You' : escapeHtml(item.user_name)}</strong> · ${timeAgo(item.created_at)}</span>
           <div class="item-actions">
             ${ageBadge}
-            ${item.status === 'lost' && isOwner ? `<button class="btn btn-sm btn-ghost" style="padding: 4px; height: auto;" onclick="event.stopPropagation(); Items.bumpItem(${item.id})" title="Bump to top"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg></button>` : ''}
+            ${item.status === 'lost' && isOwner ? `<button class="btn btn-sm btn-ghost" style="padding: 4px 8px; height: auto; font-size: 0.75rem;" onclick="event.stopPropagation(); Items.bumpItem(${item.id})" title="Renew Listing">Renew Listing</button>` : ''}
             <span class="status-badge ${statusClass}">${statusText}</span>
           </div>
         </div>
       </div>`;
+  },
+
+  toggleFormType() {
+    const type = document.querySelector('input[name="item-type"]:checked').value;
+    const foundFields = document.getElementById('found-fields');
+    const verificationGroup = document.getElementById('verification-group');
+    const titleEl = document.getElementById('post-form-title');
+    const subtitleEl = document.querySelector('#view-post-item .view-subtitle');
+    const locLabel = document.getElementById('location-label');
+    const dateLabel = document.getElementById('date-label');
+    const submitBtn = document.getElementById('submit-post');
+    const heldAt = document.getElementById('item-held-at');
+    
+    if (type === 'found') {
+      foundFields.classList.remove('hidden');
+      verificationGroup.classList.remove('hidden');
+      titleEl.textContent = 'Report a Found Item';
+      subtitleEl.textContent = 'Help reunite this item with its owner. Only share a photo if it does not give away identifying details.';
+      locLabel.textContent = 'Where did you find it? *';
+      dateLabel.textContent = 'Date Found *';
+      submitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Post Found Item';
+      heldAt.required = true;
+    } else {
+      foundFields.classList.add('hidden');
+      verificationGroup.classList.remove('hidden');
+      titleEl.textContent = 'Report a Lost Item';
+      subtitleEl.textContent = 'Provide details to help us match the item.';
+      locLabel.textContent = 'Where did you lose it? *';
+      dateLabel.textContent = 'Date Lost *';
+      submitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Post Lost Item';
+      heldAt.required = false;
+    }
   },
 
   async showItemDetail(itemId) {
@@ -118,13 +151,15 @@ const Items = {
           ${item.status === 'found' || item.status === 'returned' ? `<div class="detail-item"><div class="detail-label">Found by</div><div class="detail-value">${escapeHtml(item.found_by || 'N/A')}</div></div>
           <div class="detail-item"><div class="detail-label">Found date</div><div class="detail-value">${formatDate(item.found_date)}</div></div>` : ''}
         </div>
+        </div>
         <div class="modal-item-actions">
           ${item.status === 'lost' && !isOwner && Auth.currentUser ? `<button class="btn btn-primary" onclick="Chat.startChat(${item.id}, ${item.user_id}, '${escapeHtml(item.user_name)}', '${escapeHtml(item.title)}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Message Poster</button>` : ''}
-          ${item.status === 'lost' && !isOwner && Auth.currentUser ? `<button class="btn btn-success" onclick="Items.openClaimModal(${item.id}, '${escapeHtml(item.verification_question || '')}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>Claim This Item</button>` : ''}
+          ${item.status === 'found' && !isOwner && Auth.currentUser ? `<button class="btn btn-primary" onclick="Chat.startChat(${item.id}, ${item.user_id}, '${escapeHtml(item.user_name)}', '${escapeHtml(item.title)}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Message Finder</button>` : ''}
+          ${item.status === 'found' && !isOwner && Auth.currentUser ? `<button class="btn btn-success" onclick="Items.openClaimModal(${item.id}, '${escapeHtml(item.verification_question || '')}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>Claim This Item</button>` : ''}
           ${item.status === 'lost' && (isOwner || isAdmin) ? `<button class="btn btn-success" onclick="Items.markFound(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Mark as Found</button>` : ''}
           ${item.status === 'found' && (isOwner || isAdmin) ? `<button class="btn btn-success" onclick="Items.markReturned(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Mark as Returned</button>` : ''}
-          ${item.status === 'lost' && (isOwner || isAdmin) ? `<button class="btn" style="background:var(--bg-glass);color:var(--text-primary);border:1px solid var(--border);" onclick="Items.viewClaims(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>View Claims</button>` : ''}
-          ${item.status === 'lost' && isOwner ? `<button class="btn" style="background:var(--bg-glass);color:var(--text-primary);border:1px solid var(--border);" onclick="Items.bumpItem(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>Bump</button>` : ''}
+          ${(item.status === 'lost' || item.status === 'found') && (isOwner || isAdmin) ? `<button class="btn" style="background:var(--bg-glass);color:var(--text-primary);border:1px solid var(--border);" onclick="Items.viewClaims(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>View Claims</button>` : ''}
+          ${(item.status === 'lost' || item.status === 'found') && isOwner ? `<button class="btn" style="background:var(--bg-glass);color:var(--text-primary);border:1px solid var(--border);" onclick="Items.bumpItem(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>Renew Listing</button>` : ''}
           ${isOwner || isAdmin ? `<button class="btn btn-ghost" onclick="Items.editItem(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>` : ''}
           ${isOwner || isAdmin ? `<button class="btn btn-danger" onclick="Items.confirmDelete(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete</button>` : ''}
         </div>`;

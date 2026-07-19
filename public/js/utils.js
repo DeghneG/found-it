@@ -37,6 +37,8 @@ function getCategoryClass(category) {
     'Documents': 'cat-documents',
     'Accessories': 'cat-accessories',
     'Books': 'cat-books',
+    'IDs / School Cards': 'cat-documents',
+    'Keys': 'cat-accessories',
     'Other': 'cat-other'
   };
   return map[category] || 'cat-other';

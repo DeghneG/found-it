@@ -7,10 +7,10 @@
   <title>USA Lost & Found System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body>
+<body class="light-mode">
   <!-- ═══════════════ LOADING SCREEN ═══════════════ -->
   <div id="loading-screen" class="loading-screen">
     <div class="loading-content">
@@ -112,23 +112,19 @@
       <div class="nav-links">
         <a href="#" class="nav-link active" data-view="dashboard" id="nav-dashboard">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span>Dashboard</span>
+          <span>Browse Lost</span>
+        </a>
+        <a href="#" class="nav-link" data-view="found-items" id="nav-found">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span>Browse Found</span>
         </a>
         <a href="#" class="nav-link" data-view="post-item" id="nav-post">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           <span>Report Item</span>
         </a>
         <a href="#" class="nav-link" data-view="my-posts" id="nav-my-posts">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           <span>My Posts</span>
-        </a>
-        <a href="#" class="nav-link" data-view="found-items" id="nav-found">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>Found</span>
-        </a>
-        <a href="#" class="nav-link" data-view="long-lost" id="nav-long-lost">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span>2+ Weeks</span>
         </a>
         <a href="#" class="nav-link" data-view="chat" id="nav-chat">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
@@ -138,6 +134,10 @@
         <a href="#" class="nav-link" data-view="watchlist" id="nav-watchlist">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           <span>Watchlist</span>
+        </a>
+        <a href="#" class="nav-link admin-only hidden" data-view="admin-console" id="nav-admin">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          <span>Admin Console</span>
         </a>
       </div>
 
@@ -151,20 +151,60 @@
     <!-- Main Content Area -->
     <main id="main-content" class="main-content">
       <!-- Dashboard View -->
+      <!-- Dashboard View -->
       <div id="view-dashboard" class="view active">
-        <div class="view-header">
-          <div>
-            <h1>Lost Items Dashboard</h1>
-            <p class="view-subtitle">Help find lost items around campus</p>
-          </div>
-          <button class="btn btn-primary" id="dashboard-post-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-            Report Lost Item
-          </button>
-        </div>
-
         <div class="dashboard-layout">
           <div class="dashboard-main">
+            <div class="view-header">
+              <div>
+                <h1>Browse Lost Items</h1>
+                <p class="view-subtitle">Items currently missing on campus</p>
+              </div>
+              <button class="btn btn-primary" id="dashboard-post-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                Report Lost Item
+              </button>
+            </div>
+
+            <!-- Stats Dashboard -->
+            <div class="stats-dashboard" id="dashboard-stats">
+              <div class="stat-card">
+                <div class="stat-icon stat-icon-lost"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+                <div class="stat-info"><span class="stat-num" id="stat-active-lost">0</span><span class="stat-label">Active Lost</span></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon stat-icon-found"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+                <div class="stat-info"><span class="stat-num" id="stat-active-found">0</span><span class="stat-label">Active Found</span></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon stat-icon-resolved"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+                <div class="stat-info"><span class="stat-num" id="stat-resolved">0</span><span class="stat-label">Resolved This Month</span></div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon stat-icon-overdue"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                <div class="stat-info"><span class="stat-num" id="stat-overdue">0</span><span class="stat-label">Over 2 Weeks</span></div>
+              </div>
+            </div>
+
+            <!-- How it works explainer -->
+            <div id="how-it-works" class="glass-card hidden" style="margin-bottom: 28px;">
+              <h3 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 12px; color: var(--gold);">How it works</h3>
+              <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                  <strong style="color: var(--text-primary);">1. 📝 Report</strong><br>
+                  <span style="font-size: 0.85rem; color: var(--text-secondary);">Lost something? Found something? Tell us what, where, and when. Add a photo to speed up matching.</span>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                  <strong style="color: var(--text-primary);">2. 🔔 Get Notified</strong><br>
+                  <span style="font-size: 0.85rem; color: var(--text-secondary);">We'll alert you when a potential match appears or when someone claims an item.</span>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                  <strong style="color: var(--text-primary);">3. ✅ Verify & Claim</strong><br>
+                  <span style="font-size: 0.85rem; color: var(--text-secondary);">Answer the verification question to prove ownership, coordinate pickup, and you're done!</span>
+                </div>
+              </div>
+            </div>
+
             <!-- Search & Filters -->
             <div class="filters-bar">
               <div class="search-box">
@@ -174,6 +214,8 @@
               <div class="category-filters" id="category-filters">
                 <button class="filter-btn active" data-category="all">All</button>
                 <button class="filter-btn" data-category="Electronics">Electronics</button>
+                <button class="filter-btn" data-category="IDs / School Cards">IDs / School Cards</button>
+                <button class="filter-btn" data-category="Keys">Keys</button>
                 <button class="filter-btn" data-category="Clothing">Clothing</button>
                 <button class="filter-btn" data-category="Documents">Documents</button>
                 <button class="filter-btn" data-category="Accessories">Accessories</button>
@@ -186,48 +228,11 @@
             <div id="items-grid" class="items-grid">
               <div class="empty-state">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <h3>No lost items reported yet</h3>
-                <p>Be the first to report a lost item</p>
+                <h3>Nothing reported yet — that's a good sign! 🎉</h3>
+                <p>If you've lost something on campus, tap Report Lost Item to get started.</p>
               </div>
             </div>
           </div>
-
-          <!-- Calendar Sidebar -->
-          <aside class="calendar-sidebar glass-card">
-            <div class="calendar-header">
-              <button class="cal-nav" id="cal-prev">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-              </button>
-              <h3 id="cal-month-year">June 2026</h3>
-              <button class="cal-nav" id="cal-next">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
-            </div>
-            <div class="calendar-grid">
-              <div class="cal-day-header">Su</div>
-              <div class="cal-day-header">Mo</div>
-              <div class="cal-day-header">Tu</div>
-              <div class="cal-day-header">We</div>
-              <div class="cal-day-header">Th</div>
-              <div class="cal-day-header">Fr</div>
-              <div class="cal-day-header">Sa</div>
-            </div>
-            <div class="calendar-days" id="cal-days"></div>
-            <div class="calendar-stats">
-              <div class="cal-stat">
-                <span class="cal-stat-num" id="cal-stat-lost">0</span>
-                <span class="cal-stat-label">Active Lost</span>
-              </div>
-              <div class="cal-stat">
-                <span class="cal-stat-num cal-stat-found" id="cal-stat-found">0</span>
-                <span class="cal-stat-label">Found</span>
-              </div>
-              <div class="cal-stat">
-                <span class="cal-stat-num cal-stat-overdue" id="cal-stat-overdue">0</span>
-                <span class="cal-stat-label">2+ Weeks</span>
-              </div>
-            </div>
-          </aside>
         </div>
       </div>
 
@@ -235,98 +240,149 @@
       <div id="view-post-item" class="view">
         <div class="view-header">
           <div>
-            <h1 id="post-form-title">Report a Lost Item</h1>
-            <p class="view-subtitle">Provide details to help find your item</p>
+            <h1 id="post-form-title">Report an Item</h1>
+            <p class="view-subtitle">Provide details to help us match the item.</p>
           </div>
         </div>
-        <form id="item-form" class="item-form glass-card">
-          <input type="hidden" id="edit-item-id" value="">
-          <div class="form-row">
+
+        <div class="glass-card item-form">
+          <div style="margin-bottom: 24px;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); background: var(--bg-glass); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+              <strong>Policy:</strong> Unclaimed items are archived after 60 days and may be turned over to the Campus Security Office (Herrera Hall).
+            </p>
+          </div>
+
+          <div class="form-group" style="display:flex; gap:16px; margin-bottom: 24px;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="radio" name="item-type" value="lost" checked style="width:auto; margin:0;" onchange="Items.toggleFormType()">
+              <span>I lost something</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="radio" name="item-type" value="found" style="width:auto; margin:0;" onchange="Items.toggleFormType()">
+              <span>I found something</span>
+            </label>
+          </div>
+
+          <form id="item-form" class="item-form">
+            <input type="hidden" id="edit-item-id" value="">
+            <div id="form-error" class="form-error hidden"></div>
+
             <div class="form-group">
-              <label for="item-title">Item Name *</label>
-              <input type="text" id="item-title" placeholder="e.g. Blue Samsung Phone" required>
+              <label>Item Photo (Recommended)</label>
+              <div class="upload-area" id="upload-area">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <p>Click or drag image here</p>
+                <span class="upload-hint">Items with a photo are matched 3× faster. Max 20MB.</span>
+              </div>
+              <input type="file" id="item-image" class="hidden" accept="image/*,video/*">
+              <div id="image-preview" class="image-preview hidden">
+                <img id="preview-img" src="" alt="Preview">
+                <button type="button" class="btn btn-danger btn-sm" id="remove-image" style="position:absolute;top:8px;right:8px;padding:4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+              </div>
+              <input type="hidden" id="item-image-url" value="">
             </div>
+
+            <div class="form-row">
+              <div class="form-group" style="flex: 2;">
+                <label for="item-title">Item Name/Title *</label>
+                <input type="text" id="item-title" placeholder="e.g. Black Jansport Backpack" required>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label for="item-category">Category *</label>
+                <select id="item-category" required>
+                  <option value="">Select category</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="IDs / School Cards">IDs / School Cards</option>
+                  <option value="Keys">Keys</option>
+                  <option value="Clothing">Clothing</option>
+                  <option value="Documents">Documents</option>
+                  <option value="Accessories">Accessories</option>
+                  <option value="Books">Books</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
             <div class="form-group">
-              <label for="item-category">Category *</label>
-              <select id="item-category" required>
-                <option value="">Select category</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Clothing">Clothing</option>
-                <option value="Documents">Documents</option>
-                <option value="Accessories">Accessories</option>
-                <option value="Books">Books</option>
-                <option value="Other">Other</option>
-              </select>
+              <label for="item-description">Description & Unique Features *</label>
+              <textarea id="item-description" rows="4" placeholder="Describe the item, including any scratches, stickers, or unique marks..." required></textarea>
             </div>
-          </div>
-          <div class="form-group">
-            <label for="item-description">Description *</label>
-            <textarea id="item-description" rows="4" placeholder="Describe the item in detail — color, brand, distinguishing marks..." required></textarea>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="item-location">Where Last Seen *</label>
-              <select id="item-location" required>
-                <option value="">Select location</option>
-                <option value="Herrera Hall">Herrera Hall</option>
-                <option value="Mentrida Hall">Mentrida Hall</option>
-                <option value="Fray Luis De Leon Hall">Fray Luis De Leon Hall</option>
-                <option value="Rada Hall">Rada Hall</option>
-                <option value="Lana Hall">Lana Hall</option>
-                <option value="Aguirre Hall">Aguirre Hall</option>
-                <option value="Mercado Hall">Mercado Hall</option>
-                <option value="Swimming Pool Area">Swimming Pool Area</option>
-                <option value="Gamboa Hall">Gamboa Hall</option>
-                <option value="Dolse Garcia Hall">Dolse Garcia Hall</option>
-                <option value="Alumni Building">Alumni Building</option>
-                <option value="Blano Hall">Blano Hall</option>
-                <option value="Urdaneta Hall">Urdaneta Hall</option>
-                <option value="Injap Center">Injap Center</option>
-                <option value="PMT Building">PMT Building</option>
-                <option value="Mendel Hall">Mendel Hall</option>
-                <option value="Hotel Sta. Monica">Hotel Sta. Monica</option>
-                <option value="Gymnasium">Gymnasium</option>
-                <option value="Outside Court">Outside Court</option>
-                <option value="Grandstand">Grandstand</option>
-                <option value="Parking Lot">Parking Lot</option>
-                <option value="Football Field">Football Field</option>
-                <option value="Other">Other</option>
-              </select>
-              <input type="text" id="item-location-other" class="hidden" placeholder="Specify location..." style="margin-top:8px">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label id="location-label" for="item-location">Where did you lose it? *</label>
+                <select id="item-location" required>
+                  <option value="">Select location</option>
+                  <option value="Herrera Hall">Herrera Hall</option>
+                  <option value="Mentrida Hall">Mentrida Hall</option>
+                  <option value="Fray Luis De Leon Hall">Fray Luis De Leon Hall</option>
+                  <option value="Rada Hall">Rada Hall</option>
+                  <option value="Lana Hall">Lana Hall</option>
+                  <option value="Aguirre Hall">Aguirre Hall</option>
+                  <option value="Mercado Hall">Mercado Hall</option>
+                  <option value="Swimming Pool Area">Swimming Pool Area</option>
+                  <option value="Gamboa Hall">Gamboa Hall</option>
+                  <option value="Dolse Garcia Hall">Dolse Garcia Hall</option>
+                  <option value="Alumni Building">Alumni Building</option>
+                  <option value="Blanco Hall">Blanco Hall</option>
+                  <option value="Urdaneta Hall">Urdaneta Hall</option>
+                  <option value="Injap Center">Injap Center</option>
+                  <option value="PMT Building">PMT Building</option>
+                  <option value="Mendel Hall">Mendel Hall</option>
+                  <option value="Hotel Sta. Monica">Hotel Sta. Monica</option>
+                  <option value="Gymnasium">Gymnasium</option>
+                  <option value="Outside Court">Outside Court</option>
+                  <option value="Grandstand">Grandstand</option>
+                  <option value="Parking Lot">Parking Lot</option>
+                  <option value="Football Field">Football Field</option>
+                  <option value="Library">Library</option>
+                  <option value="Cafeteria">Cafeteria</option>
+                  <option value="Student Center">Student Center</option>
+                  <option value="Chapel">Chapel</option>
+                  <option value="Other">Other</option>
+                </select>
+                <input type="text" id="item-location-other" class="hidden" placeholder="Specify location..." style="margin-top:8px">
+              </div>
+              <div class="form-group">
+                <label id="date-label" for="item-date">Date Lost *</label>
+                <input type="date" id="item-date" required>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="item-date">Date Lost *</label>
-              <input type="date" id="item-date" onclick="this.showPicker()" onkeydown="return false;" style="cursor: pointer;" required>
+
+            <!-- Found item specific fields -->
+            <div id="found-fields" class="hidden">
+              <div class="form-group">
+                <label>Where is the item currently held? *</label>
+                <select id="item-held-at">
+                  <option value="" disabled selected>Select current location...</option>
+                  <option value="Guard Office - Main Gate">Guard Office - Main Gate</option>
+                  <option value="Front Desk - Herrera Hall">Front Desk - Herrera Hall</option>
+                  <option value="Department Office">Department Office</option>
+                  <option value="Faculty Room">Faculty Room</option>
+                  <option value="I am holding it">I am holding it personally</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Finder Contact Info (Optional)</label>
+                <input type="text" id="item-finder-contact" placeholder="Email or phone number for pickup coordination">
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <label for="item-verification">Verification Question (Optional)</label>
-            <input type="text" id="item-verification" placeholder="e.g. What is the lock screen wallpaper?">
-            <span style="font-size:.75rem;color:var(--text-muted);margin-top:4px;display:block">Claimers must answer this to prove ownership</span>
-          </div>
-          <div class="form-group">
-            <label for="item-image">Photo (Optional)</label>
-            <div class="upload-area" id="upload-area">
-              <input type="file" id="item-image" accept="image/*" hidden>
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              <p>Click or drag to upload an image</p>
-              <span class="upload-hint">JPG, PNG, GIF — Max 5MB</span>
+
+            <div class="form-group" id="verification-group">
+              <label for="item-verification">Verification Question (Optional)</label>
+              <input type="text" id="item-verification" placeholder="e.g. What is the lock screen wallpaper?">
+              <span style="font-size:.75rem;color:var(--text-muted);margin-top:4px;display:block">Only ask something the true owner would know.</span>
             </div>
-            <div id="image-preview" class="image-preview hidden">
-              <img id="preview-img" src="" alt="Preview">
-              <button type="button" id="remove-image" class="btn btn-ghost btn-sm">Remove</button>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-ghost" id="cancel-post">Cancel</button>
+              <button type="submit" class="btn btn-primary" id="submit-post">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Post Item
+              </button>
             </div>
-            <input type="hidden" id="item-image-url" value="">
-          </div>
-          <div id="form-error" class="form-error hidden"></div>
-          <div class="form-actions">
-            <button type="button" class="btn btn-ghost" id="cancel-post">Cancel</button>
-            <button type="submit" class="btn btn-primary" id="submit-post">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              Post Item
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
 
       <!-- My Posts View -->
@@ -341,14 +397,14 @@
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           <div class="banner-content">
             <h4>Important: 2-Month Deadline</h4>
-            <p>Make sure to <strong style="color:var(--text-primary);">Bump</strong> your lost item before the deadline (2 months from posting) because the system will automatically remove it after the deadline.</p>
+            <p>Make sure to <strong style="color:var(--text-primary);">Renew Listing</strong> before the deadline (2 months from posting) because the system will automatically remove it after the deadline.</p>
           </div>
         </div>
         <div id="my-posts-grid" class="items-grid">
           <div class="empty-state">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <h3>No posts yet</h3>
-            <p>Report a lost item to get started</p>
+            <h3>You haven't reported anything yet.</h3>
+            <p>Lost something? We'll help you find it.</p>
           </div>
         </div>
       </div>
@@ -364,8 +420,8 @@
         <div id="found-items-grid" class="items-grid">
           <div class="empty-state">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><polyline points="20 6 9 17 4 12"/></svg>
-            <h3>No items found yet</h3>
-            <p>Recovered items will appear here</p>
+            <h3>No items have been recovered yet.</h3>
+            <p>Check back soon — good things happen!</p>
           </div>
         </div>
       </div>
@@ -407,7 +463,7 @@
             <div id="conversations-list" class="conversations-list">
               <div class="empty-state small">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                <p>No conversations yet</p>
+                <p>No conversations yet. When you message someone about an item, it'll show up here.</p>
               </div>
             </div>
           </div>
@@ -570,11 +626,14 @@
       <!-- Item Detail Modal -->
       <div id="item-modal" class="modal hidden">
         <div class="modal-overlay" id="modal-overlay"></div>
-        <div class="modal-content glass-card" id="modal-content">
+        <div class="modal-content glass-card" id="modal-content" style="padding:0; overflow:hidden;">
           <button class="modal-close" id="modal-close">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
-          <div id="modal-body"></div>
+          <div id="modal-body" style="padding:32px;"></div>
+          <div style="padding:16px 32px; border-top:1px solid var(--border); text-align:right">
+            <button class="btn btn-sm" style="color:var(--text-muted); background:transparent; font-size: 0.75rem;" onclick="App.reportPost()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:middle"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Report this post</button>
+          </div>
         </div>
       </div>
 
@@ -590,6 +649,27 @@
           </div>
         </div>
       </div>
+      <!-- Admin Console View -->
+      <div id="view-admin-console" class="view">
+        <div class="view-header">
+          <div>
+            <h1>Admin Console</h1>
+            <p class="view-subtitle">System moderation and oversight</p>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div style="display:flex; gap:16px; margin-bottom: 24px; flex-wrap:wrap">
+            <button class="filter-btn active" id="admin-tab-items" onclick="App.loadAdminTab('items')">All Listings</button>
+            <button class="filter-btn" id="admin-tab-reports" onclick="App.loadAdminTab('reports')">Flagged Reports</button>
+            <button class="filter-btn" id="admin-tab-claims" onclick="App.loadAdminTab('claims')">Pending Claims</button>
+          </div>
+          <div id="admin-content-area" style="overflow-x:auto;">
+            <!-- Rendered via JS -->
+            <p class="text-muted">Loading admin data...</p>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 
