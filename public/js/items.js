@@ -374,29 +374,73 @@ const Items = {
   setupFilters() {
     const searchInput = document.getElementById('search-input');
     let debounce;
-    searchInput.addEventListener('input', () => {
-      clearTimeout(debounce);
-      debounce = setTimeout(() => {
-        this.searchQuery = searchInput.value.trim();
-        this.loadDashboard();
-      }, 300);
-    });
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => {
+          this.searchQuery = searchInput.value.trim();
+          this.loadDashboard();
+        }, 300);
+      });
+    }
 
-    document.getElementById('category-filters').addEventListener('click', (e) => {
-      const btn = e.target.closest('.filter-btn');
-      if (!btn) return;
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      this.currentFilter = btn.dataset.category;
-      this.loadDashboard();
-    });
+    const filtersContainer = document.getElementById('category-filters');
+    if (filtersContainer) {
+      filtersContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.filter-btn');
+        if (!btn) return;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentFilter = btn.dataset.category;
+        this.loadDashboard();
+      });
+    }
+
+    const sortSelect = document.getElementById('sort-items');
+    if (sortSelect) {
+      sortSelect.addEventListener('change', () => {
+        this.loadDashboard();
+      });
+    }
   },
 
   async loadDashboard() {
-    const params = { status: 'lost' };
-    if (this.currentFilter !== 'all') params.category = this.currentFilter;
-    if (this.searchQuery) params.search = this.searchQuery;
-    await this.loadItems('items-grid', params);
+    const grid = document.getElementById('items-grid');
+    try {
+      const params = { status: 'lost' };
+      if (this.searchQuery) params.search = this.searchQuery;
+      const query = new URLSearchParams(params).toString();
+      const data = await apiRequest(`/api/items?${query}`);
+      let items = data.items || [];
+
+      // Calculate and update category counts
+      const counts = { all: items.length };
+      items.forEach(item => {
+        counts[item.category] = (counts[item.category] || 0) + 1;
+      });
+      
+      document.querySelectorAll('.filter-count').forEach(el => {
+        const cat = el.id.replace('count-', '');
+        el.textContent = counts[cat] || 0;
+      });
+
+      // Apply local filtering
+      if (this.currentFilter !== 'all') {
+        items = items.filter(i => i.category === this.currentFilter);
+      }
+
+      // Apply local sorting
+      const sortVal = document.getElementById('sort-items')?.value || 'newest';
+      items.sort((a, b) => {
+        const dateA = new Date(a.created_at).getTime();
+        const dateB = new Date(b.created_at).getTime();
+        return sortVal === 'newest' ? dateB - dateA : dateA - dateB;
+      });
+
+      this.renderGrid(grid, items, params);
+    } catch (err) {
+      grid.innerHTML = '<div class="empty-state"><h3>Error loading items</h3><p>' + escapeHtml(err.message) + '</p></div>';
+    }
   },
 
   async loadMyPosts() {

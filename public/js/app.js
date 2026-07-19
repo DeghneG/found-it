@@ -80,11 +80,9 @@ const App = {
     document.getElementById('user-name-display').textContent = user.name;
     document.getElementById('user-avatar').textContent = user.name[0].toUpperCase();
     if (user.isAdmin) {
-      document.getElementById('admin-badge').classList.remove('hidden');
-      document.getElementById('nav-admin').classList.remove('hidden');
+      document.getElementById('admin-badge')?.classList.remove('hidden');
     } else {
-      document.getElementById('admin-badge').classList.add('hidden');
-      document.getElementById('nav-admin').classList.add('hidden');
+      document.getElementById('admin-badge')?.classList.add('hidden');
     }
 
     // No chat initialization needed
@@ -119,19 +117,6 @@ const App = {
               highlight: true,
               onClick: () => {
                 Items.showItemDetail(item.id);
-              }
-            });
-          });
-        }
-
-        // Watchlist alerts
-        if (data.watchlistMatches && data.watchlistMatches.length > 0) {
-          data.watchlistMatches.forEach(m => {
-            showToast(`🔔 Watchlist match: "${m.item_title}" matches your keyword "${m.keyword}"`, 'info', {
-              autoClose: false,
-              highlight: true,
-              onClick: () => {
-                Items.showItemDetail(m.item_id);
               }
             });
           });
@@ -249,111 +234,11 @@ const App = {
       case 'found-items': Items.loadFoundItems(); break;
       case 'long-lost': Items.loadLongLost(); break;
       case 'profile': this.loadProfile(); break;
-      case 'watchlist': this.loadWatchlist(); break;
       case 'post-item':
         if (!document.getElementById('edit-item-id').value) Items.resetForm();
         Items.toggleFormType();
         break;
-      case 'admin-console':
-        if (Auth.currentUser && Auth.currentUser.isAdmin) {
-          this.loadAdminTab('items');
-        } else {
-          this.switchView('dashboard');
-        }
-        break;
-    }
-  },
 
-  async loadAdminTab(tab) {
-    document.getElementById('admin-tab-items').classList.remove('active');
-    document.getElementById('admin-tab-reports').classList.remove('active');
-    document.getElementById('admin-tab-claims').classList.remove('active');
-    document.getElementById(`admin-tab-${tab}`).classList.add('active');
-
-    const area = document.getElementById('admin-content-area');
-    area.innerHTML = '<p class="text-muted">Loading...</p>';
-
-    try {
-      if (tab === 'items') {
-        const data = await apiRequest('/api/admin/items');
-        area.innerHTML = `
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Status</th>
-                <th>User</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${data.items.map(item => `
-                <tr>
-                  <td>${item.id}</td>
-                  <td>${escapeHtml(item.title)}</td>
-                  <td><span class="status-badge status-${item.status}">${item.status}</span></td>
-                  <td>${escapeHtml(item.user_name)}</td>
-                  <td>
-                    <button class="btn btn-sm btn-ghost" onclick="Items.showItemDetail(${item.id})">View</button>
-                    <button class="btn btn-sm btn-danger" onclick="Items.confirmDelete(${item.id})">Delete</button>
-                  </td>
-                </tr>
-              `).join('') || '<tr><td colspan="5">No items found</td></tr>'}
-            </tbody>
-          </table>
-        `;
-      } else if (tab === 'reports') {
-        const data = await apiRequest('/api/admin/reports');
-        area.innerHTML = `
-          <div class="reports-grid">
-            ${data.reports.map(r => `
-              <div class="glass-card" style="margin-bottom:12px; padding:16px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                  <strong>Report on ${r.target_type} #${r.target_id}</strong>
-                  <span class="text-muted" style="font-size:0.85rem;">${timeAgo(r.created_at)}</span>
-                </div>
-                <p>Reason: ${escapeHtml(r.reason)}</p>
-                <div style="margin-top:12px;">
-                  <button class="btn btn-sm btn-primary" onclick="${r.target_type === 'item' ? `Items.showItemDetail(${r.target_id})` : ''}">View Target</button>
-                  <button class="btn btn-sm btn-success" onclick="App.resolveReport(${r.id})">Mark Resolved</button>
-                </div>
-              </div>
-            `).join('') || '<p>No flagged reports.</p>'}
-          </div>
-        `;
-      } else if (tab === 'claims') {
-        const data = await apiRequest('/api/admin/claims');
-        area.innerHTML = `
-          <div class="claims-grid">
-            ${data.claims.map(c => `
-              <div class="glass-card" style="margin-bottom:12px; padding:16px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                  <strong>Claim on Item #${c.item_id}</strong>
-                  <span class="status-badge claim-${c.status}">${c.status}</span>
-                </div>
-                <p>By: User #${c.claimer_id}</p>
-                <p>Proof: ${escapeHtml(c.proof_description)}</p>
-                <div style="margin-top:12px;">
-                  <button class="btn btn-sm btn-primary" onclick="Items.showItemDetail(${c.item_id})">View Item</button>
-                </div>
-              </div>
-            `).join('') || '<p>No pending claims.</p>'}
-          </div>
-        `;
-      }
-    } catch (err) {
-      area.innerHTML = `<p class="form-error">${escapeHtml(err.message)}</p>`;
-    }
-  },
-
-  async resolveReport(reportId) {
-    try {
-      await apiRequest(`/api/admin/reports/${reportId}/resolve`, { method: 'PUT' });
-      showToast('Report resolved', 'success');
-      this.loadAdminTab('reports');
-    } catch (err) {
-      showToast(err.message, 'error');
     }
   },
 
@@ -371,50 +256,6 @@ const App = {
 
   refreshCurrentView() {
     this.switchView(this.currentView);
-  },
-
-  async loadWatchlist() {
-    try {
-      const data = await apiRequest('/api/watchlist');
-      const list = document.getElementById('watchlist-list');
-      if (!data.watchlist || data.watchlist.length === 0) {
-        list.innerHTML = '<div class="empty-state small"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><p>No watchlist items yet. Add a keyword above to get notified.</p></div>';
-        return;
-      }
-      list.innerHTML = data.watchlist.map(w => `
-        <div class="watchlist-item" data-id="${w.id}">
-          <div>
-            <span class="watchlist-keyword">${escapeHtml(w.keyword)}</span>
-            ${w.category ? `<span class="watchlist-category">${escapeHtml(w.category)}</span>` : '<span class="watchlist-category">All Categories</span>'}
-          </div>
-          <button class="watchlist-delete" onclick="App.deleteWatchlistItem(${w.id})" title="Remove">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>`).join('');
-    } catch (err) {
-      showToast('Failed to load watchlist', 'error');
-    }
-  },
-
-  async addWatchlistItem() {
-    const keyword = document.getElementById('watchlist-keyword').value.trim();
-    const category = document.getElementById('watchlist-category').value;
-    if (!keyword) { showToast('Enter a keyword', 'error'); return; }
-    try {
-      await apiRequest('/api/watchlist', { method: 'POST', body: JSON.stringify({ keyword, category: category || null }) });
-      document.getElementById('watchlist-keyword').value = '';
-      document.getElementById('watchlist-category').value = '';
-      showToast(`Watching for "${keyword}"`, 'success');
-      this.loadWatchlist();
-    } catch (err) { showToast(err.message, 'error'); }
-  },
-
-  async deleteWatchlistItem(id) {
-    try {
-      await apiRequest(`/api/watchlist/${id}`, { method: 'DELETE' });
-      showToast('Removed from watchlist', 'success');
-      this.loadWatchlist();
-    } catch (err) { showToast(err.message, 'error'); }
   },
 
   setupModals() {
