@@ -277,8 +277,8 @@ small, .meta-text, .timestamp, .item-meta, .stat-label { font-family: var(--font
   from { opacity: 0; transform: translateY(20px) scale(0.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
-.item-card{padding:20px;min-height:370px;background:var(--neu-bg);border-radius:20px;box-shadow:var(--neu-shadow);overflow:visible;transition:transform 0.4s ease, box-shadow 0.4s ease;cursor:pointer;position:relative;animation:cardEntrance 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;}
-.item-card:hover{transform:translateY(-10px);box-shadow:var(--neu-shadow-lg);}
+.item-card{padding:20px;min-height:370px;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);overflow:visible;transition:transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;cursor:pointer;position:relative;animation:cardEntrance 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;}
+.item-card:hover{transform:translateY(-10px);box-shadow:var(--shadow-lg);border-color:var(--border-focus);}
 .item-card:active{transform:translateY(-2px) scale(0.99);}
 
 /* Staggered card animations */
@@ -296,8 +296,8 @@ small, .meta-text, .timestamp, .item-meta, .stat-label { font-family: var(--font
 .item-card.type-lost{border-left:none}
 .item-card.type-found{border-left:none}
 .item-card.status-returned{opacity:0.75;border-left:none}
-.item-card-image-wrapper { position: relative; min-height: 170px; background-color: var(--bg-secondary); border-radius: 15px; margin-bottom: 15px; }
-.item-card-image-wrapper::after { content: ''; position: absolute; inset: 0; border-radius: 15px; box-shadow: var(--neu-shadow-inset); pointer-events: none; }
+.item-card-image-wrapper { position: relative; min-height: 170px; background-color: var(--bg-glass); border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border); }
+.item-card-image-wrapper::after { content: ''; position: absolute; inset: 0; border-radius: 15px; pointer-events: none; }
 .item-card-image{width:100%;height:170px;object-fit:cover;border-radius:15px;}
 .item-card-image-placeholder{width:100%;height:170px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:var(--text-muted)}
 .item-card-body{margin:13px 0 0 10px;}
