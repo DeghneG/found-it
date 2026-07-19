@@ -65,7 +65,7 @@ const Items = {
         <div class="item-card-image-wrapper">
         ${item.image_url
           ? `<img class="item-card-image" src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy">`
-          : `<div class="item-card-image-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`
+          : `<img class="item-card-image" src="https://picsum.photos/seed/${item.id}/800/600" alt="Placeholder photo" loading="lazy">`
         }
         </div>
         <div class="item-card-body">
