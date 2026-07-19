@@ -25,11 +25,21 @@ const App = {
     const sunIcon = toggle.querySelector('.sun-icon');
     const moonIcon = toggle.querySelector('.moon-icon');
     
-    // Check saved theme
-    if (localStorage.getItem('theme') === 'light') {
+    // Check saved theme, default to light
+    let savedTheme = localStorage.getItem('theme');
+    if (!savedTheme) {
+      savedTheme = 'light';
+      localStorage.setItem('theme', 'light');
+    }
+    
+    if (savedTheme === 'light') {
       document.body.classList.add('light-mode');
       sunIcon.classList.add('hidden');
       moonIcon.classList.remove('hidden');
+    } else {
+      document.body.classList.remove('light-mode');
+      sunIcon.classList.remove('hidden');
+      moonIcon.classList.add('hidden');
     }
     
     toggle.addEventListener('click', () => {
