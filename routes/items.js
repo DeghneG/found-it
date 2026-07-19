@@ -10,6 +10,7 @@ function autoArchive() {
   db.items.forEach(i => {
     if (i.status !== 'archived' && new Date(i.created_at) < sixtyDaysAgo) {
       i.status = 'archived';
+      i.description += ' (Archived by System: Disposed/Donated per SAWO policy)';
     }
   });
 }
@@ -64,7 +65,7 @@ router.get('/:id', (req, res) => {
 // Create item (lost or found)
 router.post('/', requireAuth, (req, res) => {
   try {
-    const { title, description, category, location, date_lost, image_url, verification_question, type, held_at, finder_contact } = req.body;
+    const { title, description, category, location, date_lost, image_url, verification_question, type } = req.body;
     const itemType = type || 'lost';
     if (!title || !description || !category || !location || !date_lost) {
       return res.status(400).json({ error: 'All required fields must be filled' });
@@ -73,7 +74,6 @@ router.post('/', requireAuth, (req, res) => {
       id: db.nextId('items'), user_id: req.session.userId, type: itemType, status: itemType === 'found' ? 'found' : 'lost',
       title, description, category, location, date_lost,
       image_url: image_url || null, verification_question: verification_question || null,
-      held_at: held_at || null, finder_contact: finder_contact || null,
       user_name: req.session.userName, user_email: req.session.userEmail,
       created_at: new Date().toISOString(), updated_at: new Date().toISOString()
     };
@@ -108,8 +108,8 @@ router.put('/:id', requireAuth, (req, res) => {
     if (idx === -1) return res.status(404).json({ error: 'Item not found' });
     const item = db.items[idx];
     if (item.user_id !== req.session.userId && !req.session.isAdmin) return res.status(403).json({ error: 'You can only edit your own posts' });
-    const { title, description, category, location, date_lost, image_url, verification_question, held_at, finder_contact } = req.body;
-    Object.assign(item, { title, description, category, location, date_lost, image_url: image_url || null, verification_question: verification_question || null, held_at: held_at || item.held_at, finder_contact: finder_contact || item.finder_contact, updated_at: new Date().toISOString() });
+    const { title, description, category, location, date_lost, image_url, verification_question } = req.body;
+    Object.assign(item, { title, description, category, location, date_lost, image_url: image_url || null, verification_question: verification_question || null, updated_at: new Date().toISOString() });
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: 'Server error' }); }
 });

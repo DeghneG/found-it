@@ -3,26 +3,26 @@ const db = require('../database/db');
 const { requireAuth } = require('../middleware/auth');
 const router = express.Router();
 
+// Create claim (Mark Interest)
 router.post('/', requireAuth, (req, res) => {
   try {
-    const { item_id, proof_description } = req.body;
-    if (!item_id || !proof_description || !proof_description.trim()) return res.status(400).json({ error: 'Item ID and proof description are required' });
+    const { item_id } = req.body;
+    if (!item_id) return res.status(400).json({ error: 'Item ID required' });
     const item = db.items.find(i => i.id == item_id);
     if (!item) return res.status(404).json({ error: 'Item not found' });
-    if (item.user_id === req.session.userId) return res.status(400).json({ error: 'You cannot claim your own item' });
-    if (db.claims.find(c => c.item_id == item_id && c.claimer_id === req.session.userId && c.status === 'pending')) {
-      return res.status(400).json({ error: 'You already have a pending claim on this item' });
+    if (item.user_id === req.session.userId) return res.status(400).json({ error: 'Cannot claim your own item' });
+    // Check if already claimed
+    if (db.claims.some(c => c.item_id == item_id && c.claimant_id === req.session.userId && c.status !== 'rejected')) {
+      return res.status(400).json({ error: 'You have already marked interest for this item' });
     }
     const claim = {
-      id: db.nextId('claims'), item_id: parseInt(item_id), claimer_id: req.session.userId,
-      proof_description: proof_description.trim(), status: 'pending',
-      reviewed_by: null, reviewed_at: null, created_at: new Date().toISOString()
+      id: db.nextId('claims'), item_id: parseInt(item_id), claimant_id: req.session.userId,
+      claimant_name: req.session.userName, claimant_email: req.session.userEmail,
+      status: 'pending', created_at: new Date().toISOString()
     };
     db.claims.push(claim);
-    // Audit log
-    db.claimAudit.push({ id: db.nextId('audit'), claim_id: claim.id, action: 'submitted', actor_id: req.session.userId, timestamp: new Date().toISOString(), notes: 'Claim submitted' });
-    res.json({ success: true, claim });
-  } catch (err) { res.status(500).json({ error: 'Server error' }); }
+    res.json({ success: true, claimId: claim.id });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Server error' }); }
 });
 
 router.get('/item/:itemId', requireAuth, (req, res) => {

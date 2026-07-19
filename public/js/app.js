@@ -91,8 +91,7 @@ const App = {
       document.getElementById('nav-admin').classList.add('hidden');
     }
 
-    // Initialize chat
-    Chat.init();
+    // No chat initialization needed
 
     // Load dashboard
     this.switchView('dashboard');
@@ -116,29 +115,6 @@ const App = {
     const poll = async () => {
       try {
         const data = await apiRequest(`/api/notifications?since=${encodeURIComponent(lastPollTime)}`);
-        
-        let hasNewMessages = false;
-        if (data.newMessages && data.newMessages.length > 0) {
-          data.newMessages.forEach(msg => {
-            if (Chat.currentChat && Chat.currentChat.otherUserId === msg.sender_id && Chat.currentChat.itemId === msg.item_id) {
-              return;
-            }
-            const senderName = msg.sender?.name || 'Someone';
-            showToast(`New message from ${senderName}`, 'info', {
-              autoClose: false,
-              highlight: true,
-              onClick: () => {
-                Chat.startChat(msg.item_id, msg.sender_id, senderName, 'Item');
-              }
-            });
-            hasNewMessages = true;
-          });
-        }
-
-        if (hasNewMessages) {
-          Chat.updateUnreadBadge();
-          if (this.currentView === 'chat') Chat.loadConversations();
-        }
         
         if (data.foundItems && data.foundItems.length > 0) {
           data.foundItems.forEach(item => {
@@ -276,7 +252,6 @@ const App = {
       case 'my-posts': Items.loadMyPosts(); break;
       case 'found-items': Items.loadFoundItems(); break;
       case 'long-lost': Items.loadLongLost(); break;
-      case 'chat': Chat.loadConversations(); break;
       case 'profile': this.loadProfile(); break;
       case 'watchlist': this.loadWatchlist(); break;
       case 'post-item':

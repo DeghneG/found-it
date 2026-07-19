@@ -153,9 +153,7 @@ const Items = {
         </div>
         </div>
         <div class="modal-item-actions">
-          ${item.status === 'lost' && !isOwner && Auth.currentUser ? `<button class="btn btn-primary" onclick="Chat.startChat(${item.id}, ${item.user_id}, '${escapeHtml(item.user_name)}', '${escapeHtml(item.title)}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Message Poster</button>` : ''}
-          ${item.status === 'found' && !isOwner && Auth.currentUser ? `<button class="btn btn-primary" onclick="Chat.startChat(${item.id}, ${item.user_id}, '${escapeHtml(item.user_name)}', '${escapeHtml(item.title)}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Message Finder</button>` : ''}
-          ${item.status === 'found' && !isOwner && Auth.currentUser ? `<button class="btn btn-success" onclick="Items.openClaimModal(${item.id}, '${escapeHtml(item.verification_question || '')}')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>Claim This Item</button>` : ''}
+          ${item.status === 'found' && !isOwner && Auth.currentUser ? `<button class="btn btn-success" onclick="Items.openClaimModal(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>I think this is mine — mark interest</button>` : ''}
           ${item.status === 'lost' && (isOwner || isAdmin) ? `<button class="btn btn-success" onclick="Items.markFound(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Mark as Found</button>` : ''}
           ${item.status === 'found' && (isOwner || isAdmin) ? `<button class="btn btn-success" onclick="Items.markReturned(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Mark as Returned</button>` : ''}
           ${(item.status === 'lost' || item.status === 'found') && (isOwner || isAdmin) ? `<button class="btn" style="background:var(--bg-glass);color:var(--text-primary);border:1px solid var(--border);" onclick="Items.viewClaims(${item.id})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>View Claims</button>` : ''}
@@ -215,9 +213,15 @@ const Items = {
         locOther.classList.remove('hidden');
       }
 
+      if (item.type === 'found') {
+        document.querySelector('input[name="item-type"][value="found"]').checked = true;
+      } else {
+        document.querySelector('input[name="item-type"][value="lost"]').checked = true;
+      }
+      this.toggleFormType();
+
       document.getElementById('item-date').value = item.date_lost;
       document.getElementById('item-image-url').value = item.image_url || '';
-      document.getElementById('item-verification').value = item.verification_question || '';
       document.getElementById('post-form-title').textContent = 'Edit Item';
       document.getElementById('submit-post').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Save Changes';
 
@@ -312,16 +316,17 @@ const Items = {
       e.preventDefault();
       formError.classList.add('hidden');
       const itemId = document.getElementById('edit-item-id').value;
+      const type = document.querySelector('input[name="item-type"]:checked').value;
       const locationVal = document.getElementById('item-location').value;
-      const locationOtherVal = document.getElementById('item-location-other').value.trim();
+      
       const payload = {
         title: document.getElementById('item-title').value.trim(),
         description: document.getElementById('item-description').value.trim(),
         category: document.getElementById('item-category').value,
-        location: locationVal === 'Other' ? locationOtherVal : locationVal,
+        location: locationVal === 'Other' ? document.getElementById('item-location-other').value.trim() : locationVal,
         date_lost: document.getElementById('item-date').value,
         image_url: document.getElementById('item-image-url').value || null,
-        verification_question: document.getElementById('item-verification').value.trim() || null
+        type: type
       };
 
       if (!payload.title || !payload.description || !payload.category || !payload.location || !payload.date_lost) {
@@ -360,7 +365,6 @@ const Items = {
     document.getElementById('upload-area').classList.remove('hidden');
     document.getElementById('form-error').classList.add('hidden');
     document.getElementById('item-location-other').classList.add('hidden');
-    document.getElementById('item-verification').value = '';
     document.getElementById('post-form-title').textContent = 'Report a Lost Item';
     document.getElementById('submit-post').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Post Item';
   },
@@ -426,38 +430,27 @@ const Items = {
   // Claim workflow
   _claimItemId: null,
 
-  openClaimModal(itemId, verificationQuestion) {
-    this._claimItemId = itemId;
-    const modal = document.getElementById('claim-modal');
-    const vqEl = document.getElementById('claim-verification-question');
-    document.getElementById('claim-proof').value = '';
-    document.getElementById('claim-error').classList.add('hidden');
-
-    if (verificationQuestion) {
-      vqEl.textContent = '❓ ' + verificationQuestion;
-      vqEl.classList.remove('hidden');
-    } else {
-      vqEl.classList.add('hidden');
-    }
-
-    modal.classList.remove('hidden');
-  },
-
-  async submitClaim() {
-    const proof = document.getElementById('claim-proof').value.trim();
-    const errEl = document.getElementById('claim-error');
-    if (!proof) {
-      errEl.textContent = 'Please describe your proof of ownership';
-      errEl.classList.remove('hidden');
+  openClaimModal(itemId) {
+    if (!Auth.currentUser) {
+      showToast('Please log in first', 'error');
       return;
     }
+    
+    document.getElementById('claim-submit-btn').onclick = () => this.submitClaim(itemId);
+    
+    document.getElementById('claim-modal').classList.remove('hidden');
+    document.getElementById('claim-error').classList.add('hidden');
+  },
+
+  async submitClaim(itemId) {
+    const errEl = document.getElementById('claim-error');
     try {
       await apiRequest('/api/claims', {
         method: 'POST',
-        body: JSON.stringify({ item_id: this._claimItemId, proof_description: proof })
+        body: JSON.stringify({ item_id: itemId })
       });
       document.getElementById('claim-modal').classList.add('hidden');
-      showToast('Claim submitted! The poster will review it.', 'success');
+      showToast('SAWO staff have been notified of your interest.', 'success');
     } catch (err) {
       errEl.textContent = err.message;
       errEl.classList.remove('hidden');
@@ -471,29 +464,26 @@ const Items = {
       const body = document.getElementById('claims-list-body');
 
       if (!data.claims || data.claims.length === 0) {
-        body.innerHTML = '<div class="empty-state small"><p>No claims submitted yet.</p></div>';
+        body.innerHTML = '<div class="empty-state small"><p>No interest marked yet.</p></div>';
       } else {
         body.innerHTML = data.claims.map(c => {
-          const name = c.claimer?.name || 'Unknown';
+          const name = c.claimant_name || 'Unknown';
           let statusHtml = '';
           if (c.status === 'pending') statusHtml = `<span class="claim-status claim-pending">Pending</span>`;
           else if (c.status === 'approved') statusHtml = `<span class="claim-status claim-approved">Approved</span>`;
           else statusHtml = `<span class="claim-status claim-rejected">Rejected</span>`;
 
-          return `<div class="claim-card">
-            <div class="claim-card-header">
-              <span class="claim-user">${escapeHtml(name)}</span>
-              <div>${statusHtml} <span class="claim-time">${timeAgo(c.created_at)}</span></div>
+          return `
+            <div class="claim-item">
+              <div class="claim-header">
+                <strong>${escapeHtml(name)}</strong>
+                ${statusHtml}
+              </div>
+              <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:4px;">Notified at: ${formatDate(c.created_at)}</p>
             </div>
-            <p class="claim-proof">${escapeHtml(c.proof_description)}</p>
-            ${c.status === 'pending' ? `<div class="claim-actions">
-              <button class="btn btn-sm btn-success" onclick="Items.approveClaim(${c.id})">Approve</button>
-              <button class="btn btn-sm btn-danger" onclick="Items.rejectClaim(${c.id})">Reject</button>
-            </div>` : ''}
-          </div>`;
+          `;
         }).join('');
       }
-
       modal.classList.remove('hidden');
     } catch (err) {
       showToast(err.message, 'error');

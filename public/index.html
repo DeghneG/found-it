@@ -126,10 +126,9 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           <span>My Posts</span>
         </a>
-        <a href="#" class="nav-link" data-view="chat" id="nav-chat">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-          <span>Messages</span>
-          <span id="unread-badge" class="badge hidden">0</span>
+        <a href="#" class="nav-link" data-view="sawo" id="nav-sawo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          <span>Contact SAWO</span>
         </a>
         <a href="#" class="nav-link" data-view="watchlist" id="nav-watchlist">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -137,7 +136,7 @@
         </a>
         <a href="#" class="nav-link admin-only hidden" data-view="admin-console" id="nav-admin">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-          <span>Admin Console</span>
+          <span>SAWO Staff Console</span>
         </a>
       </div>
 
@@ -350,21 +349,11 @@
             </div>
 
             <!-- Found item specific fields -->
-            <div id="found-fields" class="hidden">
-              <div class="form-group">
-                <label>Where is the item currently held? *</label>
-                <select id="item-held-at">
-                  <option value="" disabled selected>Select current location...</option>
-                  <option value="Guard Office - Main Gate">Guard Office - Main Gate</option>
-                  <option value="Front Desk - Herrera Hall">Front Desk - Herrera Hall</option>
-                  <option value="Department Office">Department Office</option>
-                  <option value="Faculty Room">Faculty Room</option>
-                  <option value="I am holding it">I am holding it personally</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Finder Contact Info (Optional)</label>
-                <input type="text" id="item-finder-contact" placeholder="Email or phone number for pickup coordination">
+            <div id="found-fields" class="hidden" style="margin-bottom: 24px;">
+              <div class="glass-card" style="padding: 16px; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2);">
+                <p style="margin: 0; color: var(--text-primary);">
+                  <strong>Important:</strong> After submitting this report, please physically surrender the item to the SAWO Office so it can be securely held for the owner.
+                </p>
               </div>
             </div>
 
@@ -436,7 +425,7 @@
         </div>
         <div class="long-lost-banner glass-card">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <p>These items have been reported lost for <strong>more than 14 days</strong>. If you've seen any of them, please reach out to the poster.</p>
+          <p>These items have been reported lost for <strong>more than 14 days</strong>. If you've seen any of them, please turn it in to the SAWO Office.</p>
         </div>
         <div id="long-lost-grid" class="items-grid">
           <div class="empty-state">
@@ -447,61 +436,40 @@
         </div>
       </div>
 
-      <!-- Chat View -->
-      <div id="view-chat" class="view">
+      <!-- SAWO Contact View -->
+      <div id="view-sawo" class="view">
         <div class="view-header">
           <div>
-            <h1>Messages</h1>
-            <p class="view-subtitle">Chat with other users about items</p>
+            <h1>Contact SAWO</h1>
+            <p class="view-subtitle">Student Affairs and Welfare Office</p>
           </div>
         </div>
-        <div class="chat-container glass-card">
-          <div class="chat-sidebar" id="chat-sidebar">
-            <div class="chat-sidebar-header">
-              <h3>Conversations</h3>
-            </div>
-            <div id="conversations-list" class="conversations-list">
-              <div class="empty-state small">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                <p>No conversations yet. When you message someone about an item, it'll show up here.</p>
+        <div class="glass-card" style="max-width: 600px;">
+          <h3>Surrender & Claim Location</h3>
+          <p style="margin-bottom: 16px;">All found items must be physically surrendered to the SAWO Office. Verification of ownership and hand-back happens in person.</p>
+          
+          <div style="margin-top: 24px; display: grid; gap: 16px;">
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink: 0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <div>
+                <strong>Location:</strong>
+                <p>SAWO Office, University of San Agustin (Main Campus)</p>
               </div>
             </div>
-          </div>
-          <div class="chat-main" id="chat-main">
-            <div class="chat-placeholder">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-              <h3>Select a conversation</h3>
-              <p>Choose a conversation from the sidebar to start messaging</p>
+            
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <div>
+                <strong>Office Hours:</strong>
+                <p>Monday - Friday: 8:00 AM - 5:00 PM</p>
+              </div>
             </div>
-            <div id="chat-active" class="chat-active hidden">
-              <div class="chat-header" id="chat-header">
-                <button class="btn btn-ghost btn-sm chat-back-btn" id="chat-back-btn">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-                </button>
-                <div>
-                  <h4 id="chat-partner-name">User</h4>
-                  <p id="chat-item-title">About: Item</p>
-                </div>
-              </div>
-              <div class="chat-messages" id="chat-messages"></div>
-              
-              <!-- Attachment Preview Area -->
-              <div id="chat-attachment-preview" class="chat-attachment-preview hidden">
-                <div class="preview-content">
-                  <span id="chat-attachment-name">filename.jpg</span>
-                  <button id="chat-attachment-remove" class="btn btn-ghost btn-sm" title="Remove attachment">✕</button>
-                </div>
-              </div>
-              
-              <div class="chat-input-area">
-                <input type="file" id="chat-attachment-input" accept="image/*,video/mp4,video/webm,video/quicktime" class="hidden">
-                <button id="chat-attach-btn" class="btn btn-ghost btn-sm" title="Attach photo or video">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
-                </button>
-                <input type="text" id="chat-input" placeholder="Type a message or attach a file...">
-                <button id="chat-send-btn" class="btn btn-primary btn-sm">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                </button>
+            
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink: 0;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <div>
+                <strong>Contact:</strong>
+                <p>sawo@usa.edu.ph<br>+63 33 337 4841 to 44</p>
               </div>
             </div>
           </div>
@@ -558,7 +526,7 @@
                 <h2 id="profile-display-name">User</h2>
                 <p id="profile-display-email">user@email.com</p>
                 <p id="profile-display-status" style="color:var(--gold);font-size:0.85rem;font-weight:600;margin-top:4px;">Status: <span id="status-text">Student</span></p>
-                <span id="profile-admin-tag" class="admin-badge hidden">Admin</span>
+                <span id="profile-admin-tag" class="admin-badge hidden">SAWO Staff</span>
               </div>
             </div>
             <form id="profile-form" class="profile-form">
@@ -653,15 +621,15 @@
       <div id="view-admin-console" class="view">
         <div class="view-header">
           <div>
-            <h1>Admin Console</h1>
-            <p class="view-subtitle">System moderation and oversight</p>
+            <h1>SAWO Staff Console</h1>
+            <p class="view-subtitle">Manage items, reports, and claim interests</p>
           </div>
         </div>
         <div class="glass-card">
           <div style="display:flex; gap:16px; margin-bottom: 24px; flex-wrap:wrap">
             <button class="filter-btn active" id="admin-tab-items" onclick="App.loadAdminTab('items')">All Listings</button>
             <button class="filter-btn" id="admin-tab-reports" onclick="App.loadAdminTab('reports')">Flagged Reports</button>
-            <button class="filter-btn" id="admin-tab-claims" onclick="App.loadAdminTab('claims')">Pending Claims</button>
+            <button class="filter-btn" id="admin-tab-claims" onclick="App.loadAdminTab('claims')">Interested Claimants</button>
           </div>
           <div id="admin-content-area" style="overflow-x:auto;">
             <!-- Rendered via JS -->
@@ -683,15 +651,10 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
       <div class="claim-modal-body">
-        <h3>Claim This Item</h3>
-        <p>Provide proof that this item belongs to you.</p>
-        <div id="claim-verification-question" class="claim-verification-q hidden"></div>
-        <div class="form-group">
-          <label for="claim-proof">Your Answer / Proof</label>
-          <textarea id="claim-proof" rows="3" placeholder="Describe something only the real owner would know..."></textarea>
-        </div>
+        <h3>Mark Interest</h3>
+        <p>Are you sure this is yours? If so, click below to notify SAWO staff. You will need to visit the SAWO office in person to verify ownership and claim the item.</p>
         <div id="claim-error" class="form-error hidden"></div>
-        <button class="btn btn-primary btn-full" id="claim-submit-btn">Submit Claim</button>
+        <button class="btn btn-primary btn-full" id="claim-submit-btn">Mark Interest</button>
       </div>
     </div>
   </div>
@@ -712,7 +675,7 @@
     <div class="user-info">
       <div class="user-avatar" id="user-avatar">U</div>
       <span id="user-name-display">User</span>
-      <span id="admin-badge" class="admin-badge hidden">Admin</span>
+      <span id="admin-badge" class="admin-badge hidden">SAWO Staff</span>
       <div class="profile-dropdown-container">
         <button id="profile-dropdown-btn" class="profile-arrow-btn" aria-label="Open profile menu">
           <svg class="profile-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>

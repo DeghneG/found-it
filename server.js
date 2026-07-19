@@ -22,7 +22,6 @@ app.use(session({
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/items', require('./routes/items'));
-app.use('/api/chat', require('./routes/chat'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/watchlist', require('./routes/watchlist'));
