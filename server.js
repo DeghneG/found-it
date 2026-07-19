@@ -8,6 +8,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+if (process.env.VERCEL === '1' || process.env.VERCEL_ENV) {
+  app.use('/uploads', express.static('/tmp/uploads'));
+}
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'usa-lost-and-found-secret-key-2026',

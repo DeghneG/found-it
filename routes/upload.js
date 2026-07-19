@@ -5,9 +5,14 @@ const fs = require('fs');
 const { requireAuth } = require('../middleware/auth');
 const router = express.Router();
 
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+// Ensure uploads directory exists (use /tmp on Vercel because of read-only filesystem)
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV;
+const uploadDir = isVercel ? '/tmp/uploads' : path.join(__dirname, '..', 'public', 'uploads');
+try {
+  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+} catch (e) {
+  console.error('Failed to create upload directory:', e);
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
