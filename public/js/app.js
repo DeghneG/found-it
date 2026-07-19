@@ -84,11 +84,6 @@ const App = {
     const user = Auth.currentUser;
     document.getElementById('user-name-display').textContent = user.name;
     document.getElementById('user-avatar').textContent = user.name[0].toUpperCase();
-    if (user.isAdmin) {
-      document.getElementById('admin-badge')?.classList.remove('hidden');
-    } else {
-      document.getElementById('admin-badge')?.classList.add('hidden');
-    }
 
     // No chat initialization needed
 
@@ -342,12 +337,6 @@ const App = {
     document.getElementById('profile-new-password').value = '';
     document.getElementById('profile-error').classList.add('hidden');
     document.getElementById('profile-success').classList.add('hidden');
-
-    if (user.isAdmin) {
-      document.getElementById('profile-admin-tag').classList.remove('hidden');
-    } else {
-      document.getElementById('profile-admin-tag').classList.add('hidden');
-    }
 
     // Load stats
     try {
