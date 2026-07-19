@@ -32,27 +32,27 @@ const App = {
       localStorage.setItem('theme', 'light');
     }
     
-    if (savedTheme === 'light') {
-      document.body.classList.add('light-mode');
-      sunIcon.classList.add('hidden');
-      moonIcon.classList.remove('hidden');
-    } else {
-      document.body.classList.remove('light-mode');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-mode');
       sunIcon.classList.remove('hidden');
       moonIcon.classList.add('hidden');
+    } else {
+      document.body.classList.remove('dark-mode');
+      sunIcon.classList.add('hidden');
+      moonIcon.classList.remove('hidden');
     }
     
     toggle.addEventListener('click', () => {
-      document.body.classList.toggle('light-mode');
-      const isLight = document.body.classList.contains('light-mode');
-      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
       
-      if (isLight) {
-        sunIcon.classList.add('hidden');
-        moonIcon.classList.remove('hidden');
-      } else {
+      if (isDark) {
         sunIcon.classList.remove('hidden');
         moonIcon.classList.add('hidden');
+      } else {
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
       }
     });
   },
