@@ -3,9 +3,21 @@ const db = require('../database/db');
 const { requireAuth } = require('../middleware/auth');
 const router = express.Router();
 
+// auto-archive expired items (60 days)
+function autoArchive() {
+  const sixtyDaysAgo = new Date();
+  sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+  db.items.forEach(i => {
+    if (i.status !== 'archived' && new Date(i.created_at) < sixtyDaysAgo) {
+      i.status = 'archived';
+    }
+  });
+}
+
 // Get items (with filters)
 router.get('/', (req, res) => {
   try {
+    autoArchive();
     const { category, search, status, type, longLost } = req.query;
     let items = [...db.items].filter(i => i.status !== 'archived');
 
@@ -35,6 +47,7 @@ router.get('/', (req, res) => {
 // User's own items
 router.get('/user/my-items', requireAuth, (req, res) => {
   try {
+    autoArchive();
     let items = db.items.filter(i => i.user_id === req.session.userId && i.status !== 'archived');
     items.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     res.json({ items });
@@ -144,6 +157,7 @@ router.put('/:id/bump', requireAuth, (req, res) => {
 
 // Stats
 router.get('/stats/summary', (req, res) => {
+  autoArchive();
   const now = new Date();
   const thirtyDaysAgo = new Date(); thirtyDaysAgo.setDate(now.getDate() - 30);
   const twoWeeks = new Date(); twoWeeks.setDate(now.getDate() - 14);
