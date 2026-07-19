@@ -1,61 +1,52 @@
 const express = require('express');
-const { supabase } = require('../database/supabase');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
+// In-memory store to replace Supabase (fixes connection error & clears items)
+let itemsDb = [];
+let nextId = 1;
+
 // Get all lost items (with filters)
-router.get('/', async (req, res) => {
+router.get('/', (req, res) => {
   try {
     const { category, search, status, longLost } = req.query;
 
-    let query = supabase
-      .from('items')
-      .select(`
-        *,
-        users:user_id (name, email)
-      `);
-
-    // Filter out items older than 60 days
-    const sixtyDaysAgo = new Date();
-    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
-    query = query.gte('created_at', sixtyDaysAgo.toISOString());
+    let filteredItems = [...itemsDb];
 
     if (status) {
       if (status === 'found') {
-        query = query.in('status', ['found', 'returned']);
+        filteredItems = filteredItems.filter(i => ['found', 'returned'].includes(i.status));
       } else {
-        query = query.eq('status', status);
+        filteredItems = filteredItems.filter(i => i.status === status);
       }
     }
 
     if (category && category !== 'all') {
-      query = query.eq('category', category);
+      filteredItems = filteredItems.filter(i => i.category === category);
     }
 
     if (search) {
-      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%`);
+      const s = search.toLowerCase();
+      filteredItems = filteredItems.filter(i => 
+        (i.title && i.title.toLowerCase().includes(s)) || 
+        (i.description && i.description.toLowerCase().includes(s)) ||
+        (i.location && i.location.toLowerCase().includes(s))
+      );
     }
 
     if (longLost === 'true') {
       const fourteenDaysAgo = new Date();
       fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-      query = query.eq('status', 'lost').lte('created_at', fourteenDaysAgo.toISOString());
+      filteredItems = filteredItems.filter(i => 
+        i.status === 'lost' && new Date(i.created_at) <= fourteenDaysAgo
+      );
     }
 
-    query = query.order('created_at', { ascending: false });
+    // Sort by created_at descending
+    filteredItems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-    const { data: items, error } = await query;
-    if (error) throw error;
-
-    // Flatten the users object to match previous SQL structure
-    const formattedItems = (items || []).map(item => ({
-      ...item,
-      user_name: item.users?.name,
-      user_email: item.users?.email
-    }));
-
-    res.json({ items: formattedItems });
+    res.json({ items: filteredItems });
   } catch (err) {
     console.error('Get items error:', err);
     res.status(500).json({ error: 'Server error' });
@@ -63,30 +54,11 @@ router.get('/', async (req, res) => {
 });
 
 // Get user's own items
-router.get('/user/my-items', requireAuth, async (req, res) => {
+router.get('/user/my-items', requireAuth, (req, res) => {
   try {
-    const sixtyDaysAgo = new Date();
-    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
-
-    const { data: items, error } = await supabase
-      .from('items')
-      .select(`
-        *,
-        users:user_id (name, email)
-      `)
-      .eq('user_id', req.session.userId)
-      .gte('created_at', sixtyDaysAgo.toISOString())
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-
-    const formattedItems = (items || []).map(item => ({
-      ...item,
-      user_name: item.users?.name,
-      user_email: item.users?.email
-    }));
-
-    res.json({ items: formattedItems });
+    let filteredItems = itemsDb.filter(i => i.user_id === req.session.userId);
+    filteredItems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    res.json({ items: filteredItems });
   } catch (err) {
     console.error('Get my items error:', err);
     res.status(500).json({ error: 'Server error' });
@@ -94,28 +66,13 @@ router.get('/user/my-items', requireAuth, async (req, res) => {
 });
 
 // Get single item
-router.get('/:id', async (req, res) => {
+router.get('/:id', (req, res) => {
   try {
-    const { data: item, error } = await supabase
-      .from('items')
-      .select(`
-        *,
-        users:user_id (name, email)
-      `)
-      .eq('id', req.params.id)
-      .single();
-
-    if (error || !item) {
+    const item = itemsDb.find(i => i.id == req.params.id);
+    if (!item) {
       return res.status(404).json({ error: 'Item not found' });
     }
-
-    const formattedItem = {
-      ...item,
-      user_name: item.users?.name,
-      user_email: item.users?.email
-    };
-
-    res.json({ item: formattedItem });
+    res.json({ item });
   } catch (err) {
     console.error('Get item error:', err);
     res.status(500).json({ error: 'Server error' });
@@ -123,7 +80,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create item
-router.post('/', requireAuth, async (req, res) => {
+router.post('/', requireAuth, (req, res) => {
   try {
     const { title, description, category, location, date_lost, image_url, verification_question } = req.body;
 
@@ -131,24 +88,26 @@ router.post('/', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'All required fields must be filled' });
     }
 
-    const { data, error } = await supabase
-      .from('items')
-      .insert([{
-        user_id: req.session.userId,
-        title,
-        description,
-        category,
-        location,
-        date_lost,
-        image_url: image_url || null,
-        verification_question: verification_question || null
-      }])
-      .select()
-      .single();
+    const newItem = {
+      id: nextId++,
+      user_id: req.session.userId,
+      user_name: req.session.userName,
+      user_email: req.session.userEmail,
+      title,
+      description,
+      category,
+      location,
+      date_lost,
+      image_url: image_url || null,
+      verification_question: verification_question || null,
+      status: 'lost',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
 
-    if (error) throw error;
+    itemsDb.push(newItem);
 
-    res.json({ success: true, itemId: data.id });
+    res.json({ success: true, itemId: newItem.id });
   } catch (err) {
     console.error('Create item error:', err);
     res.status(500).json({ error: 'Server error' });
@@ -156,40 +115,32 @@ router.post('/', requireAuth, async (req, res) => {
 });
 
 // Update item
-router.put('/:id', requireAuth, async (req, res) => {
+router.put('/:id', requireAuth, (req, res) => {
   try {
     const { title, description, category, location, date_lost, image_url, verification_question } = req.body;
-
-    // Check ownership or admin
-    const { data: check, error: checkError } = await supabase
-      .from('items')
-      .select('user_id')
-      .eq('id', req.params.id)
-      .single();
-
-    if (checkError || !check) {
+    
+    const itemIndex = itemsDb.findIndex(i => i.id == req.params.id);
+    if (itemIndex === -1) {
       return res.status(404).json({ error: 'Item not found' });
     }
 
-    if (check.user_id !== req.session.userId && !req.session.isAdmin) {
+    const item = itemsDb[itemIndex];
+
+    if (item.user_id !== req.session.userId && !req.session.isAdmin) {
       return res.status(403).json({ error: 'You can only edit your own posts' });
     }
 
-    const { error } = await supabase
-      .from('items')
-      .update({
-        title,
-        description,
-        category,
-        location,
-        date_lost,
-        image_url: image_url || null,
-        verification_question: verification_question || null,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', req.params.id);
-
-    if (error) throw error;
+    itemsDb[itemIndex] = {
+      ...item,
+      title,
+      description,
+      category,
+      location,
+      date_lost,
+      image_url: image_url || null,
+      verification_question: verification_question || null,
+      updated_at: new Date().toISOString()
+    };
 
     res.json({ success: true });
   } catch (err) {
@@ -199,30 +150,20 @@ router.put('/:id', requireAuth, async (req, res) => {
 });
 
 // Delete item
-router.delete('/:id', requireAuth, async (req, res) => {
+router.delete('/:id', requireAuth, (req, res) => {
   try {
-    const { data: check, error: checkError } = await supabase
-      .from('items')
-      .select('user_id')
-      .eq('id', req.params.id)
-      .single();
-
-    if (checkError || !check) {
+    const itemIndex = itemsDb.findIndex(i => i.id == req.params.id);
+    if (itemIndex === -1) {
       return res.status(404).json({ error: 'Item not found' });
     }
 
-    if (check.user_id !== req.session.userId && !req.session.isAdmin) {
+    const item = itemsDb[itemIndex];
+
+    if (item.user_id !== req.session.userId && !req.session.isAdmin) {
       return res.status(403).json({ error: 'You can only delete your own posts' });
     }
 
-    // Since we used ON DELETE CASCADE in Supabase schema for messages,
-    // we only need to delete the item and messages will be auto-deleted.
-    const { error } = await supabase
-      .from('items')
-      .delete()
-      .eq('id', req.params.id);
-
-    if (error) throw error;
+    itemsDb.splice(itemIndex, 1);
 
     res.json({ success: true });
   } catch (err) {
@@ -232,33 +173,26 @@ router.delete('/:id', requireAuth, async (req, res) => {
 });
 
 // Mark item as found
-router.put('/:id/found', requireAuth, async (req, res) => {
+router.put('/:id/found', requireAuth, (req, res) => {
   try {
-    const { data: check, error: checkError } = await supabase
-      .from('items')
-      .select('user_id')
-      .eq('id', req.params.id)
-      .single();
-
-    if (checkError || !check) {
+    const itemIndex = itemsDb.findIndex(i => i.id == req.params.id);
+    if (itemIndex === -1) {
       return res.status(404).json({ error: 'Item not found' });
     }
 
-    if (check.user_id !== req.session.userId && !req.session.isAdmin) {
+    const item = itemsDb[itemIndex];
+
+    if (item.user_id !== req.session.userId && !req.session.isAdmin) {
       return res.status(403).json({ error: 'Only the poster or admin can mark items as found' });
     }
 
-    const { error } = await supabase
-      .from('items')
-      .update({
-        status: 'found',
-        found_by: req.session.userName,
-        found_date: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', req.params.id);
-
-    if (error) throw error;
+    itemsDb[itemIndex] = {
+      ...item,
+      status: 'found',
+      found_by: req.session.userName,
+      found_date: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
 
     res.json({ success: true });
   } catch (err) {
@@ -268,31 +202,24 @@ router.put('/:id/found', requireAuth, async (req, res) => {
 });
 
 // Bump item
-router.put('/:id/bump', requireAuth, async (req, res) => {
+router.put('/:id/bump', requireAuth, (req, res) => {
   try {
-    const { data: check, error: checkError } = await supabase
-      .from('items')
-      .select('user_id, created_at')
-      .eq('id', req.params.id)
-      .single();
-
-    if (checkError || !check) {
+    const itemIndex = itemsDb.findIndex(i => i.id == req.params.id);
+    if (itemIndex === -1) {
       return res.status(404).json({ error: 'Item not found' });
     }
 
-    if (check.user_id !== req.session.userId && !req.session.isAdmin) {
+    const item = itemsDb[itemIndex];
+
+    if (item.user_id !== req.session.userId && !req.session.isAdmin) {
       return res.status(403).json({ error: 'Only the poster can bump their item' });
     }
 
-    const { error } = await supabase
-      .from('items')
-      .update({
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', req.params.id);
-
-    if (error) throw error;
+    itemsDb[itemIndex] = {
+      ...item,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
 
     res.json({ success: true });
   } catch (err) {
@@ -302,31 +229,24 @@ router.put('/:id/bump', requireAuth, async (req, res) => {
 });
 
 // Mark item as returned (reunited)
-router.put('/:id/returned', requireAuth, async (req, res) => {
+router.put('/:id/returned', requireAuth, (req, res) => {
   try {
-    const { data: check, error: checkError } = await supabase
-      .from('items')
-      .select('user_id, status')
-      .eq('id', req.params.id)
-      .single();
-
-    if (checkError || !check) {
+    const itemIndex = itemsDb.findIndex(i => i.id == req.params.id);
+    if (itemIndex === -1) {
       return res.status(404).json({ error: 'Item not found' });
     }
 
-    if (check.user_id !== req.session.userId && !req.session.isAdmin) {
+    const item = itemsDb[itemIndex];
+
+    if (item.user_id !== req.session.userId && !req.session.isAdmin) {
       return res.status(403).json({ error: 'Only the poster or admin can mark items as returned' });
     }
 
-    const { error } = await supabase
-      .from('items')
-      .update({
-        status: 'returned',
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', req.params.id);
-
-    if (error) throw error;
+    itemsDb[itemIndex] = {
+      ...item,
+      status: 'returned',
+      updated_at: new Date().toISOString()
+    };
 
     res.json({ success: true });
   } catch (err) {
