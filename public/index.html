@@ -594,7 +594,7 @@
       <!-- Item Detail Modal -->
       <div id="item-modal" class="modal hidden">
         <div class="modal-overlay" id="modal-overlay"></div>
-        <div class="modal-content glass-card" id="modal-content" style="padding:0; overflow-y:auto; overflow-x:hidden;">
+        <div class="modal-content glass-card" id="modal-content" style="padding:0; overflow-y:auto; overflow-x:hidden;" data-lenis-prevent>
           <button class="modal-close" id="modal-close">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
@@ -608,7 +608,7 @@
       <!-- Confirm Delete Modal -->
       <div id="confirm-modal" class="modal hidden">
         <div class="modal-overlay" id="confirm-overlay"></div>
-        <div class="modal-content glass-card small-modal">
+        <div class="modal-content glass-card small-modal" data-lenis-prevent>
           <h3>Confirm Delete</h3>
           <p>Are you sure you want to delete this post? This action cannot be undone.</p>
           <div class="modal-actions">
@@ -646,7 +646,7 @@
   <!-- Claim Modal -->
   <div id="claim-modal" class="modal hidden">
     <div class="modal-overlay" id="claim-overlay"></div>
-    <div class="modal-content glass-card small-modal">
+    <div class="modal-content glass-card small-modal" data-lenis-prevent>
       <button class="modal-close" id="claim-modal-close">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -662,12 +662,12 @@
   <!-- Claims List Modal -->
   <div id="claims-list-modal" class="modal hidden">
     <div class="modal-overlay" id="claims-list-overlay"></div>
-    <div class="modal-content glass-card">
+    <div class="modal-content glass-card" data-lenis-prevent>
       <button class="modal-close" id="claims-list-close">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
       <h3 style="margin-bottom:16px">Claims on Your Item</h3>
-      <div id="claims-list-body" class="claims-list"></div>
+      <div id="claims-list-body" class="claims-list" data-lenis-prevent></div>
     </div>
   </div>
   
