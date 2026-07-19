@@ -518,15 +518,14 @@ const App = {
   }
 };
 
-// Dashboard widget
 const Dashboard = {
   async loadStats() {
     try {
-      const data = await apiRequest('/api/admin/stats');
+      const data = await apiRequest('/api/items/stats/summary');
       document.getElementById('stat-active-lost').textContent = data.activeLost || 0;
       document.getElementById('stat-active-found').textContent = data.activeFound || 0;
-      document.getElementById('stat-resolved').textContent = data.resolvedThisMonth || 0;
-      document.getElementById('stat-overdue').textContent = data.longLostCount || 0;
+      document.getElementById('stat-resolved').textContent = data.resolvedMonth || 0;
+      document.getElementById('stat-overdue').textContent = data.overdue || 0;
     } catch (e) {
       console.error(e);
     }
