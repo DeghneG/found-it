@@ -21,8 +21,10 @@ const App = {
   },
 
   setupTheme() {
-    const toggle = document.getElementById('theme-checkbox');
+    const toggle = document.getElementById('theme-toggle');
     if (!toggle) return;
+    const sunIcon = toggle.querySelector('.sun-icon');
+    const moonIcon = toggle.querySelector('.moon-icon');
     
     // Check saved theme, default to light
     let savedTheme = localStorage.getItem('theme');
@@ -31,24 +33,27 @@ const App = {
       localStorage.setItem('theme', 'light');
     }
     
-    // Checkbox checked = Sun (Light Mode)
-    // Checkbox unchecked = Moon (Dark Mode)
     if (savedTheme === 'dark') {
       document.body.classList.add('dark-mode');
-      toggle.checked = false;
+      sunIcon.classList.remove('hidden');
+      moonIcon.classList.add('hidden');
     } else {
       document.body.classList.remove('dark-mode');
-      toggle.checked = true;
+      sunIcon.classList.add('hidden');
+      moonIcon.classList.remove('hidden');
     }
     
-    toggle.addEventListener('change', () => {
-      const isLight = toggle.checked;
-      if (isLight) {
-        document.body.classList.remove('dark-mode');
-        localStorage.setItem('theme', 'light');
+    toggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      
+      if (isDark) {
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
       } else {
-        document.body.classList.add('dark-mode');
-        localStorage.setItem('theme', 'dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
       }
     });
   },

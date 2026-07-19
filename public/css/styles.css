@@ -56,75 +56,28 @@ body.dark-mode {
   --neu-shadow-inset: inset 6px 6px 10px rgba(0,0,0,0.5), inset -6px -6px 10px rgba(255,255,255,0.02);
 }
 
-.theme-toggle-wrapper {
+.theme-toggle {
   position: fixed;
   bottom: 24px;
   left: 24px;
   z-index: 1000;
-  transform-origin: bottom left;
-}
-
-.toggle-switch {
-  position: relative;
-  width: 60px;
-  height: 30px;
-  --light: #d8dbe0;
-  --dark: #28292c;
-  --link: rgb(27, 129, 112);
-  --link-hover: rgb(24, 94, 82);
-}
-
-.switch-label {
-  position: absolute;
-  width: 100%;
-  height: 30px;
-  background-color: var(--dark);
-  border-radius: 15px;
-  cursor: pointer;
-  border: 2px solid var(--dark);
-  box-shadow: var(--shadow-lg);
-}
-
-.checkbox {
-  position: absolute;
-  display: none;
-}
-
-.slider {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 15px;
-  -webkit-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.checkbox:checked ~ .slider {
-  background-color: var(--light);
-}
-
-.slider::before {
-  content: "";
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 18px;
-  height: 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  color: var(--text-primary);
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  -webkit-box-shadow: inset 8px -3px 0px 0px var(--light);
-  box-shadow: inset 8px -3px 0px 0px var(--light);
-  background-color: var(--dark);
-  -webkit-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
 }
-
-.checkbox:checked ~ .slider::before {
-  -webkit-transform: translateX(30px);
-  -ms-transform: translateX(30px);
-  transform: translateX(30px);
-  background-color: var(--dark);
-  -webkit-box-shadow: none;
-  box-shadow: none;
+.theme-toggle:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  color: var(--gold);
 }
 
 /* ═══════════════ RESET ═══════════════ */
