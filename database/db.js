@@ -44,7 +44,7 @@ function seed() {
   db.items.push(
     {
       id: db.nextId('items'), user_id: 1, type: 'lost', status: 'lost',
-      title: 'Samsung Galaxy A54 (Blue)', category: 'Electronics',
+      title: 'Samsung Galaxy A54 (Blue)', category: 'Electronics & Gadgets',
       description: 'Blue Samsung Galaxy A54 with a clear silicone case and cracked screen protector. Last used near the 2nd floor corridor.',
       location: 'Herrera Hall', date_lost: dateStr(2),
       verification_question: 'What is the lock screen wallpaper?',
@@ -53,7 +53,7 @@ function seed() {
     },
     {
       id: db.nextId('items'), user_id: 2, type: 'lost', status: 'lost',
-      title: 'Black Jansport Backpack', category: 'Accessories',
+      title: 'Black Jansport Backpack', category: 'Bags & Accessories',
       description: 'Medium-sized black Jansport backpack with a small Philippine flag pin on the front pocket. Contains notebooks and a pencil case.',
       location: 'Mentrida Hall', date_lost: dateStr(5),
       verification_question: 'What color is the pencil case inside?',
@@ -62,7 +62,7 @@ function seed() {
     },
     {
       id: db.nextId('items'), user_id: 1, type: 'lost', status: 'lost',
-      title: 'University ID Card', category: 'IDs / School Cards',
+      title: 'University ID Card', category: 'Documents & IDs',
       description: 'USA student ID card with my name and photo. Student number starts with 2023.',
       location: 'Gymnasium', date_lost: dateStr(1),
       verification_question: 'What is the student number on the ID?',
@@ -71,7 +71,7 @@ function seed() {
     },
     {
       id: db.nextId('items'), user_id: 2, type: 'lost', status: 'lost',
-      title: 'TI-84 Plus Calculator', category: 'Electronics',
+      title: 'TI-84 Plus Calculator', category: 'Electronics & Gadgets',
       description: 'Texas Instruments TI-84 Plus graphing calculator. Has a small scratch on the back cover and my name written in marker on the battery compartment.',
       location: 'Rada Hall', date_lost: dateStr(8),
       verification_question: null,
@@ -80,7 +80,7 @@ function seed() {
     },
     {
       id: db.nextId('items'), user_id: 1, type: 'lost', status: 'lost',
-      title: 'Prescription Eyeglasses (Black Frame)', category: 'Accessories',
+      title: 'Prescription Eyeglasses (Black Frame)', category: 'Bags & Accessories',
       description: 'Black rectangular frame prescription glasses in a navy blue hard case. Brand is EO. Left in a classroom after a 3pm class.',
       location: 'Fray Luis De Leon Hall', date_lost: dateStr(16),
       verification_question: null,
@@ -89,7 +89,7 @@ function seed() {
     },
     {
       id: db.nextId('items'), user_id: 2, type: 'lost', status: 'lost',
-      title: 'Physical Chemistry Textbook (Atkins)', category: 'Books',
+      title: 'Physical Chemistry Textbook (Atkins)', category: 'School Supplies',
       description: 'Atkins\' Physical Chemistry 12th Edition. Has yellow sticky notes on several chapters and my name written on the first page.',
       location: 'Mendel Hall', date_lost: dateStr(3),
       verification_question: 'What name is written on the first page?',
@@ -102,7 +102,7 @@ function seed() {
   db.items.push(
     {
       id: db.nextId('items'), user_id: 2, type: 'found', status: 'found',
-      title: 'Silver Key Set (3 Keys + Toyota Fob)', category: 'Keys',
+      title: 'Silver Key Set (3 Keys + Toyota Fob)', category: 'Personal Items',
       description: 'Set of 3 silver keys on a ring with a Toyota car key fob. Found on the ground near the east entrance.',
       location: 'Parking Lot', date_lost: dateStr(1),
       held_at: 'Guard Office', finder_contact: 'maria.santos@usa.edu.ph',
@@ -112,7 +112,7 @@ function seed() {
     },
     {
       id: db.nextId('items'), user_id: 1, type: 'found', status: 'found',
-      title: 'Blue Hydroflask (32oz)', category: 'Accessories',
+      title: 'Blue Hydroflask (32oz)', category: 'Bags & Accessories',
       description: 'Blue 32oz Hydroflask water bottle with a few stickers. Left on a bench after what looked like a PE class.',
       location: 'Grandstand', date_lost: dateStr(3),
       held_at: 'Front Desk - Herrera Hall', finder_contact: 'student@usa.edu.ph',
@@ -122,7 +122,7 @@ function seed() {
     },
     {
       id: db.nextId('items'), user_id: 3, type: 'found', status: 'found',
-      title: 'SanDisk USB Flash Drive (32GB)', category: 'Electronics',
+      title: 'SanDisk USB Flash Drive (32GB)', category: 'Electronics & Gadgets',
       description: 'Black SanDisk Ultra 32GB USB flash drive found plugged into a library computer.',
       location: 'Injap Center', date_lost: dateStr(4),
       held_at: 'Injap Center Front Desk', finder_contact: 'admin@usa.edu.ph',
@@ -135,7 +135,7 @@ function seed() {
   // One returned item
   db.items.push({
     id: db.nextId('items'), user_id: 1, type: 'lost', status: 'returned',
-    title: 'Red Folding Umbrella', category: 'Accessories',
+    title: 'Red Folding Umbrella', category: 'Bags & Accessories',
     description: 'A compact red folding umbrella, automatic open/close. Brand is Fibrella.',
     location: 'Swimming Pool Area', date_lost: dateStr(12),
     verification_question: null, found_by: 'Maria Santos', found_date: dAgo(5),
