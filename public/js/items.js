@@ -39,17 +39,16 @@ const Items = {
 
   renderCard(item) {
     const days = daysAgo(item.created_at);
-    const isLongLost = item.status === 'lost' && days >= 14;
     const isOwner = Auth.currentUser && Auth.currentUser.id === item.user_id;
     const isAdmin = Auth.currentUser && Auth.currentUser.isAdmin;
 
     // Age tier for lost items
-    let ageClass = '', ageBadge = '';
+    let ageRibbon = '';
     if (item.status === 'lost') {
-      if (days <= 3) { ageClass = 'age-fresh'; ageBadge = '<span class="age-badge age-badge-fresh">Fresh</span>'; }
-      else if (days <= 7) { ageClass = 'age-recent'; ageBadge = '<span class="age-badge age-badge-recent">1 Week</span>'; }
-      else if (days <= 14) { ageClass = 'age-warning'; ageBadge = `<span class="age-badge age-badge-warning">${days}d</span>`; }
-      else { ageClass = 'age-overdue'; ageBadge = `<span class="age-badge age-badge-overdue">OVERDUE</span>`; }
+      if (days <= 3) { ageRibbon = '<div class="age-ribbon ribbon-fresh">FRESH</div>'; }
+      else if (days <= 7) { ageRibbon = '<div class="age-ribbon ribbon-recent">1 WEEK</div>'; }
+      else if (days <= 14) { ageRibbon = `<div class="age-ribbon ribbon-warning">${days}d</div>`; }
+      else { ageRibbon = `<div class="age-ribbon ribbon-overdue">OVERDUE</div>`; }
     }
 
     // Status badge text
@@ -60,13 +59,13 @@ const Items = {
     else if (item.status === 'lost') { statusText = '○ Lost'; statusClass = 'status-lost'; }
 
     return `
-      <div class="item-card ${ageClass}" data-id="${item.id}">
-        ${isLongLost ? '<div class="long-lost-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + days + 'd</div>' : ''}
+      <div class="item-card" data-id="${item.id}">
         <div class="item-card-image-wrapper">
-        ${item.image_url
-          ? `<img class="item-card-image" src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy">`
-          : `<img class="item-card-image" src="https://picsum.photos/seed/${item.id}/800/600" alt="Placeholder photo" loading="lazy">`
-        }
+          ${ageRibbon}
+          ${item.image_url
+            ? `<img class="item-card-image" src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy">`
+            : `<div class="item-card-image-placeholder"><span>${escapeHtml(item.title)}</span></div>`
+          }
         </div>
         <div class="item-card-body">
           <div class="item-card-header">
@@ -80,12 +79,11 @@ const Items = {
           </div>
         </div>
         <div class="item-card-footer">
-          <span class="item-poster">by <strong>${isOwner ? 'You' : escapeHtml(item.user_name)}</strong> · ${timeAgo(item.created_at)}</span>
           <div class="item-actions">
-            ${ageBadge}
-            ${item.status === 'lost' && isOwner ? `<button class="btn btn-sm btn-ghost" style="padding: 4px 8px; height: auto; font-size: 0.75rem;" onclick="event.stopPropagation(); Items.bumpItem(${item.id})" title="Renew Listing">Renew Listing</button>` : ''}
+            ${item.status === 'lost' && isOwner ? `<button class="btn btn-sm btn-ghost" style="padding: 2px 6px; font-size: 0.7rem;" onclick="event.stopPropagation(); Items.bumpItem(${item.id})" title="Renew Listing">Renew</button>` : ''}
             <span class="status-badge ${statusClass}">${statusText}</span>
           </div>
+          <span class="item-poster"><strong>${isOwner ? 'You' : escapeHtml(item.user_name)}</strong> · ${timeAgo(item.created_at)}</span>
         </div>
       </div>`;
   },

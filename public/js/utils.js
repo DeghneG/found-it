@@ -17,9 +17,9 @@ function timeAgo(dateStr) {
   const d = new Date(dateStr + (dateStr.includes('Z') ? '' : 'Z'));
   const diff = Math.floor((now - d) / 1000);
   if (diff < 60) return 'Just now';
-  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-  if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+  if (diff < 3600) return Math.floor(diff / 60) + 'm';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h';
+  if (diff < 604800) return Math.floor(diff / 86400) + 'd';
   return formatDate(dateStr);
 }
 
@@ -32,14 +32,12 @@ function daysAgo(dateStr) {
 
 function getCategoryClass(category) {
   const map = {
-    'Electronics': 'cat-electronics',
-    'Clothing': 'cat-clothing',
-    'Documents': 'cat-documents',
-    'Accessories': 'cat-accessories',
-    'Books': 'cat-books',
-    'IDs / School Cards': 'cat-documents',
-    'Keys': 'cat-accessories',
-    'Other': 'cat-other'
+    'Electronics & Gadgets': 'cat-electronics',
+    'Bags & Accessories': 'cat-accessories',
+    'Clothing & Wearables': 'cat-clothing',
+    'Documents & IDs': 'cat-documents',
+    'School Supplies': 'cat-books',
+    'Personal Items': 'cat-other'
   };
   return map[category] || 'cat-other';
 }
